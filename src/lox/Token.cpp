@@ -120,7 +120,7 @@ Token::Token(TokenType type, const std::string& lexeme, LiteralType literal, int
 std::string Token::toString() const
 {
     std::stringstream res;
-    res << tokenTypeToString(m_type) << " " << m_lexeme << " " << literalToString(m_literal);
+    res << tokenTypeToString(m_type) << " lexeme:" << m_lexeme << " literal:" << literalToString(m_literal);
 
     return res.str();
 }

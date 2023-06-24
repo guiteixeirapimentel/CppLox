@@ -23,8 +23,10 @@ namespace pimentel
 
         bool match(char expected);
         char peek();
+        char peekNext();
 
         void string(std::vector<Token>& out);
+        void number(std::vector<Token>& out);
 
     private:
         std::string m_code;

@@ -29,7 +29,7 @@ namespace pimentel
     class Token
     {
     public:
-        using LiteralType = std::variant<int, std::string>;
+        using LiteralType = std::variant<double, std::string>;
     public:
         Token() = default;
         ~Token() = default;

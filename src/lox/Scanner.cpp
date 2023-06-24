@@ -5,6 +5,14 @@
 
 using namespace pimentel;
 
+namespace
+{
+    bool isDigit(char c)
+    {
+        return c >= '0' && c <= '9';
+    }
+}
+
 Scanner::Scanner(const std::string& code)
     :
     m_code(code)
@@ -27,7 +35,8 @@ Token Scanner::getToken(TokenType type)
 
 Token Scanner::getToken(TokenType type, Token::LiteralType literal)
 {
-    return Token{type, m_code.substr(m_start, m_current), literal, m_line};
+    const auto nChars = m_current - m_start;
+    return Token{type, m_code.substr(m_start, nChars), literal, m_line};
 }
 
 void Scanner::scanToken(std::vector<Token>& out)
@@ -76,11 +85,49 @@ void Scanner::scanToken(std::vector<Token>& out)
         case '\n':
             m_line++;
         break;
-        default: 
-            ErrorManager::get()
-                .report(m_line, std::string{"Unexpected character: '"} + c + "'");
+        default:
+            if(isDigit(c))
+            {
+                number(out);
+            }
+            else
+            {
+                ErrorManager::get()
+                    .report(m_line, std::string{"Unexpected character: '"} + c + "'");
+            }
         break;
     }
+}
+
+void Scanner::number(std::vector<Token>& out)
+{
+    while(isDigit(peek()))
+    {
+        advance();
+    }
+
+    if(peek() != '.' || !isDigit(peekNext()))
+    {
+        const auto numberStr = m_code.substr(m_start, m_current);
+
+        const auto val = std::atof(numberStr.c_str());
+
+        out.emplace_back(getToken(TokenType::NUMBER, val));
+        return;
+    }
+
+    advance();
+
+    while(isDigit(peek()))
+    {
+        advance();
+    }
+
+    const auto numberStr = m_code.substr(m_start, m_current);
+
+    const auto val = std::atof(numberStr.c_str());
+
+    out.emplace_back(getToken(TokenType::NUMBER, val));
 }
 
 void Scanner::string(std::vector<Token>& out)
@@ -124,6 +171,14 @@ char Scanner::peek()
     return m_code[m_current];
 }
 
+char Scanner::peekNext()
+{
+    if(m_current + 1 >= static_cast<int>(m_code.length()))
+        return '\0';
+
+    return m_code[m_current + 1];
+}
+
 std::vector<Token> Scanner::scanTokens()
 {
     std::vector<Token> tokens;
@@ -138,7 +193,7 @@ std::vector<Token> Scanner::scanTokens()
         scanToken(tokens);
     }
 
-    tokens.push_back(Token{TokenType::ENDOFFILE, "", 0, m_line});
+    tokens.push_back(Token{TokenType::ENDOFFILE, "", 0.0, m_line});
 
     return tokens;
 }
