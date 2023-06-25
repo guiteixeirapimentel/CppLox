@@ -2,14 +2,43 @@
 #include "ErrorManager.h"
 
 #include <cassert>
+#include <unordered_map>
 
 using namespace pimentel;
 
 namespace
 {
+    const std::unordered_map<std::string, TokenType> reservedKeywords = {
+        { "and" , TokenType::AND },
+        { "class" , TokenType::CLASS },
+        { "else",   TokenType::ELSE },
+        { "false",  TokenType::FALSE },
+        { "for",    TokenType::FOR },
+        { "fun",    TokenType::FUN },
+        { "if",     TokenType::IF },
+        { "nil",    TokenType::NIL },
+        { "or",     TokenType::OR },
+        { "print",  TokenType::PRINT },
+        { "return", TokenType::RETURN },
+        { "super",  TokenType::SUPER },
+        { "this",   TokenType::THIS },
+        { "true",   TokenType::TRUE },
+        { "var",    TokenType::VAR },
+        { "while",  TokenType::WHILE },
+    };
+
     bool isDigit(char c)
     {
         return c >= '0' && c <= '9';
+    }
+
+    bool isAlpha(char c)
+    {
+        return (c >= 'a' && c <= 'z') || (c >= 'A' && c <= 'Z') || (c == '_');
+    }
+    bool isAlphaNumeric(char c)
+    {
+        return isAlpha(c) || isDigit(c);
     }
 }
 
@@ -35,9 +64,15 @@ Token Scanner::getToken(TokenType type)
 
 Token Scanner::getToken(TokenType type, Token::LiteralType literal)
 {
-    const auto nChars = m_current - m_start;
-    return Token{type, m_code.substr(m_start, nChars), literal, m_line};
+    return Token{type, getCurrentLexeme(), literal, m_line};
 }
+
+std::string Scanner::getCurrentLexeme() const
+{
+    const auto nChars = m_current - m_start;
+    return m_code.substr(m_start, nChars);
+}
+
 
 void Scanner::scanToken(std::vector<Token>& out)
 {
@@ -89,6 +124,10 @@ void Scanner::scanToken(std::vector<Token>& out)
             if(isDigit(c))
             {
                 number(out);
+            }
+            else if(isAlpha(c))
+            {
+                identifier(out);
             }
             else
             {
@@ -148,6 +187,26 @@ void Scanner::string(std::vector<Token>& out)
     assert(advance() == '\"');
 
     out.emplace_back(getToken(TokenType::STRING, m_code.substr(m_start+1, m_current-2)));
+}
+
+void Scanner::identifier(std::vector<Token>& out)
+{
+    while(isAlphaNumeric(peek()))
+    {
+        advance();
+    }
+
+    auto lexeme = getCurrentLexeme();
+
+    const auto it = reservedKeywords.find(lexeme);
+
+    if(it == reservedKeywords.end())
+    {
+        out.emplace_back(getToken(TokenType::IDENTIFIER));
+        return;
+    }
+
+    out.emplace_back(getToken(it->second));
 }
 
 bool Scanner::match(char expected)

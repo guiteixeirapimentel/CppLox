@@ -25,8 +25,11 @@ namespace pimentel
         char peek();
         char peekNext();
 
+        std::string getCurrentLexeme() const;
+
         void string(std::vector<Token>& out);
         void number(std::vector<Token>& out);
+        void identifier(std::vector<Token>& out);
 
     private:
         std::string m_code;
