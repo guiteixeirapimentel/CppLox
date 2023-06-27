@@ -3,6 +3,8 @@
 #include <sstream>
 #include <iostream>
 
+#include "ExpressionVisitor.hpp"
+
 #include "Scanner.h"
 
 #include "ErrorManager.h"

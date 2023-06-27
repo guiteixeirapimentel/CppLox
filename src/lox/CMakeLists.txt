@@ -8,6 +8,11 @@ set(LOX_SOURCE
     Token.h
     ErrorManager.h
     ErrorManager.cpp
+    LiteralUtils.h
+    LiteralUtils.cpp
+    Expression.h
+    ExpressionVisitor.hpp
+    AstPrinter.hpp
 )
 
 add_library(lox_lib ${LOX_SOURCE})

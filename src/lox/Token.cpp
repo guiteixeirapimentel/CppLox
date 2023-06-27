@@ -2,14 +2,9 @@
 
 #include <sstream>
 
-using namespace pimentel;
+#include "LiteralUtils.h"
 
-// helper type for the visitor #4
-template<class... Ts>
-struct overloaded : Ts... { using Ts::operator()...; };
-// explicit deduction guide (not needed as of C++20)
-template<class... Ts>
-overloaded(Ts...) -> overloaded<Ts...>;
+using namespace pimentel;
 
 namespace
 {
@@ -100,13 +95,7 @@ namespace
         return {""};
     }
 
-    std::string literalToString(Token::LiteralType literal)
-    {
-        return std::visit(overloaded{
-            [](const std::string& arg) { return arg; },
-            [](const auto& arg) { return std::to_string(arg); },
-        }, literal);
-    }
+    
 }
 
 Token::Token(TokenType type, const std::string& lexeme, LiteralType literal, int line)
@@ -123,4 +112,9 @@ std::string Token::toString() const
     res << tokenTypeToString(m_type) << " lexeme: " << m_lexeme << " literal: " << literalToString(m_literal);
 
     return res.str();
+}
+
+std::string Token::getLexeme() const
+{
+    return m_lexeme;
 }

@@ -29,7 +29,7 @@ namespace pimentel
     class Token
     {
     public:
-        using LiteralType = std::variant<double, std::string>;
+        using LiteralType = std::variant<void*, double, std::string>;
     public:
         Token() = default;
         ~Token() = default;
@@ -38,10 +38,12 @@ namespace pimentel
 
         std::string toString() const;
 
+        std::string getLexeme() const;
+
     private:
         TokenType m_type;
         std::string m_lexeme;
-        LiteralType m_literal;
+        LiteralType m_literal = nullptr;
         int m_line;        
     };
 } // namespace pimentel
