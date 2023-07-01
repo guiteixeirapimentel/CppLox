@@ -4,6 +4,11 @@
 
 namespace pimentel
 {
+    class Token;
+}
+
+namespace pimentel
+{
     class ErrorManager
     {
     public:
@@ -15,6 +20,7 @@ namespace pimentel
         void resetError();
         void report(int line, const std::string& where, const std::string& message);
         void report(int line, const std::string& message);
+        void report(const Token& token, const std::string& message);
 
     private:
         ErrorManager() = default;

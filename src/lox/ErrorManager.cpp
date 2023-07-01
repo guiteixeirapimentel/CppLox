@@ -1,10 +1,22 @@
 #include "ErrorManager.h"
+#include "Token.h"
 
 #include <iostream>
 
 #include <memory>
 
 using namespace pimentel;
+
+void ErrorManager::report(const Token& token, const std::string& message)
+{
+    if(token.getType() == TokenType::ENDOFFILE)
+    {
+        report(token.getLine(), " at end", message);
+        return;
+    }
+
+    report(token.getLine(), " at '" + token.getLexeme() + "'", message);
+}
 
 void ErrorManager::report(int line, const std::string& where, const std::string& message)
 {
@@ -17,7 +29,6 @@ void ErrorManager::report(int line, const std::string& message)
 {
     report(line, "", message);
 }
-
 
 bool ErrorManager::hasError() const
 {
