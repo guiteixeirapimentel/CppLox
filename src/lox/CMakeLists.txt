@@ -13,6 +13,8 @@ set(LOX_SOURCE
     Expression.h
     ExpressionVisitor.hpp
     AstPrinter.hpp
+    Parser.cpp
+    Parser.h
 )
 
 add_library(lox_lib ${LOX_SOURCE})
