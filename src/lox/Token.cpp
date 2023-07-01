@@ -118,3 +118,19 @@ std::string Token::getLexeme() const
 {
     return m_lexeme;
 }
+
+TokenType Token::getType() const
+{
+    return m_type;
+}
+
+Token::LiteralType Token::getLiteral() const
+{
+    return m_literal;
+}
+
+int Token::getLine() const
+{
+    return m_line;
+}
+
