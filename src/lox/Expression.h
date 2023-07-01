@@ -1,7 +1,7 @@
 #pragma once
 #include "Token.h"
-
 #include "ExpressionVisitor.hpp"
+#include <memory>
 
 namespace pimentel
 {
@@ -16,13 +16,13 @@ namespace pimentel
     struct Binary : public Expression
     {
         Binary() = default;
-        Binary(Expression* left, Token operatorType, Expression* right)
+        Binary(std::unique_ptr<Expression> left, Token operatorType, std::unique_ptr<Expression> right)
             :
-            left(left), operatorType(operatorType), right(right){}
+            left(std::move(left)), operatorType(operatorType), right(std::move(right)){}
 
-        Expression* left;
+        std::unique_ptr<Expression> left;
         Token operatorType;
-        Expression* right;
+        std::unique_ptr<Expression> right;
 
         ExprVisitorString::RetType accept(ExprVisitorString& visitor) override
         {
@@ -33,8 +33,8 @@ namespace pimentel
     struct Grouping : public Expression
     {
         Grouping() = default;
-        Grouping(Expression* expr) : expr(expr){};
-        Expression* expr;
+        Grouping(std::unique_ptr<Expression> expr) : expr(std::move(expr)){};
+        std::unique_ptr<Expression> expr;
 
         ExprVisitorString::RetType accept(ExprVisitorString& visitor) override
         {
@@ -54,6 +54,16 @@ namespace pimentel
             value((double)val)
         {}
 
+        Literal(bool val)
+            :
+            value(val)
+        {}
+
+        Literal(Token::LiteralType val)
+            :
+            value(val)
+        {}
+
         Literal()
             :
             value(nullptr)
@@ -70,12 +80,12 @@ namespace pimentel
     struct Unary : public Expression
     {
         Unary() = default;
-        Unary(Token operatorType, Expression* right)
+        Unary(Token operatorType, std::unique_ptr<Expression> right)
             :
-            operatorType (operatorType),right(right){};
+            operatorType (operatorType), right(std::move(right)){};
 
         Token operatorType;
-        Expression* right;
+        std::unique_ptr<Expression> right;
 
         ExprVisitorString::RetType accept(ExprVisitorString& visitor) override
         {
