@@ -6,6 +6,7 @@
 
 #include <string>
 #include <sstream>
+#include <functional>
 
 #include "LiteralUtils.h"
 
@@ -25,13 +26,16 @@ namespace pimentel
         RetType visit(Binary& expr) override
         {
             return parenthesize(expr.operatorType.getLexeme(),
-                        std::array{expr.left, expr.right});
+                        std::array{
+                            std::reference_wrapper{*expr.left},
+                            std::reference_wrapper{*expr.right}
+                        });
         }
 
         RetType visit(Grouping& expr) override 
         {
             return parenthesize("group",
-                std::array{expr.expr});
+                std::array{std::reference_wrapper{*expr.expr}});
         }
 
         RetType visit(Literal& expr) override
@@ -46,20 +50,20 @@ namespace pimentel
         RetType visit(Unary& expr) override
         {
             return parenthesize(expr.operatorType.getLexeme(),
-                std::array{expr.right});
+                std::array{std::reference_wrapper{*expr.right}});
         }
 
     private:
         template<typename T>
-        std::string parenthesize(const std::string& name, const T& exprPtrList)
+        std::string parenthesize(const std::string& name, const T& exprRefWrapList)
         {
             std::stringstream stream;
 
             stream << "(" << name;
-            for(const auto& expr : exprPtrList)
+            for(const auto& expr : exprRefWrapList)
             {
                 stream << " ";
-                stream << expr->accept(*this);
+                stream << expr.get().accept(*this);
             }
 
             stream <<  ")";
