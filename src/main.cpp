@@ -9,21 +9,6 @@
 
 int main(int argc, char** argv)
 {
-    using namespace pimentel;
-    auto unary = new Unary{
-            Token{TokenType::MINUS, "-", nullptr, 1},
-            new Literal{123}};
-
-    Token token = Token(TokenType::STAR, "*", nullptr, 1);
-
-    auto grouping = new Grouping{new Literal{45.67}};
-
-    auto expression = new Binary{unary, token, grouping};
-
-    AstPrinter astPrinter;
-
-    std::cout << astPrinter.print(*expression) << std::endl;
-
     if(argc > 2)
     {
         std::cout << "Usage: cpplox [script]" << std::endl;
