@@ -9,6 +9,9 @@
 
 #include "ErrorManager.h"
 
+#include "Parser.h"
+#include "AstPrinter.hpp"
+
 using namespace pimentel;
 
 namespace
@@ -19,10 +22,20 @@ namespace
 
         const auto tokens = scanner.scanTokens();
 
-        for(const auto& token : tokens)
+        Parser p{tokens};
+
+        AstPrinter astPrinter;
+
+        const auto expr = p.parse();
+
+        if(!expr || ErrorManager::get().hasError())
         {
-            std::cout << "token: " << token.toString() << std::endl;
+            std::cout << "Errors found, please fix." << std::endl;
+
+            return;
         }
+
+        std::cout << astPrinter.print(*expr) << std::endl;
     }
 
     std::string readAllTextFromFile(const std::string& filename)
