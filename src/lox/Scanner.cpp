@@ -186,7 +186,8 @@ void Scanner::string(std::vector<Token>& out)
 
     assert(advance() == '\"');
 
-    out.emplace_back(getToken(TokenType::STRING, m_code.substr(m_start+1, m_current-2)));
+    const auto len = (m_current-1) - (m_start+1);
+    out.emplace_back(getToken(TokenType::STRING, m_code.substr(m_start+1, len)));
 }
 
 void Scanner::identifier(std::vector<Token>& out)
