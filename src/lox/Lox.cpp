@@ -16,7 +16,7 @@ using namespace pimentel;
 
 namespace
 {
-    void run(const std::string& code)
+    void run(const std::string& code, Interpreter& interpreter)
     {
         Scanner scanner{code};
 
@@ -35,7 +35,8 @@ namespace
             return;
         }
 
-        std::cout << astPrinter.print(*expr) << std::endl;
+        // std::cout << astPrinter.print(*expr) << std::endl;
+        interpreter.interpret(*expr);
     }
 
     std::string readAllTextFromFile(const std::string& filename)
@@ -65,7 +66,7 @@ void Lox::runFile(const std::string& filename)
 {
     auto dataStream = readAllTextFromFile(filename);
 
-    run(dataStream);
+    run(dataStream, m_interpreter);
 }
 
 void Lox::runPrompt()
@@ -84,6 +85,8 @@ void Lox::runPrompt()
             break;
         }
 
-        run(line);
+        run(line, m_interpreter);
+
+        ErrorManager::get().resetError();
     }
 }
