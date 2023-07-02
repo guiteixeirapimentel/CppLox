@@ -15,6 +15,8 @@ set(LOX_SOURCE
     AstPrinter.hpp
     Parser.cpp
     Parser.h
+    Interpreter.cpp
+    Interpreter.h
 )
 
 add_library(lox_lib ${LOX_SOURCE})
