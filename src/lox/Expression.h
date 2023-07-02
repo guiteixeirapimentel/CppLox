@@ -3,6 +3,15 @@
 #include "ExpressionVisitor.hpp"
 #include <memory>
 
+// I really would preffer not using macros, but as I can't use
+// templated virtual functions, this is the best solution to reduce code
+// duplication.
+#define ACCEPT_IMPL(type) \
+type::RetType accept(type& visitor) override \
+{ \
+    return visitor.visit(*this);\
+}
+
 namespace pimentel
 {
     struct Expression 
@@ -11,6 +20,7 @@ namespace pimentel
         virtual ~Expression() = default;
 
         virtual ExprVisitorString::RetType accept(ExprVisitorString& visitor) = 0;
+        virtual ExprVisitorLoxVal::RetType accept(ExprVisitorLoxVal& visitor) = 0;
     };
 
     struct Binary : public Expression
@@ -24,10 +34,8 @@ namespace pimentel
         Token operatorType;
         std::unique_ptr<Expression> right;
 
-        ExprVisitorString::RetType accept(ExprVisitorString& visitor) override
-        {
-            return visitor.visit(*this);
-        }
+        ACCEPT_IMPL(ExprVisitorString);
+        ACCEPT_IMPL(ExprVisitorLoxVal);
     };
 
     struct Grouping : public Expression
@@ -36,10 +44,8 @@ namespace pimentel
         Grouping(std::unique_ptr<Expression> expr) : expr(std::move(expr)){};
         std::unique_ptr<Expression> expr;
 
-        ExprVisitorString::RetType accept(ExprVisitorString& visitor) override
-        {
-            return visitor.visit(*this);
-        }
+        ACCEPT_IMPL(ExprVisitorString);
+        ACCEPT_IMPL(ExprVisitorLoxVal);
     };
 
     struct Literal : public Expression
@@ -71,10 +77,8 @@ namespace pimentel
 
         Token::LiteralType value;
 
-        ExprVisitorString::RetType accept(ExprVisitorString& visitor) override
-        {
-            return visitor.visit(*this);
-        }
+        ACCEPT_IMPL(ExprVisitorString);
+        ACCEPT_IMPL(ExprVisitorLoxVal);
     };
 
     struct Unary : public Expression
@@ -87,9 +91,7 @@ namespace pimentel
         Token operatorType;
         std::unique_ptr<Expression> right;
 
-        ExprVisitorString::RetType accept(ExprVisitorString& visitor) override
-        {
-            return visitor.visit(*this);
-        }
+        ACCEPT_IMPL(ExprVisitorString);
+        ACCEPT_IMPL(ExprVisitorLoxVal);
     };
 }

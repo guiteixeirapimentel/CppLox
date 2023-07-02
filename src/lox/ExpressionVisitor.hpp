@@ -1,7 +1,18 @@
 #pragma once
+#include <variant>
+#include <string>
+#include <memory>
+#include "Token.h"
+#include "LoxObject.hpp"
 
 namespace pimentel
 {
+    class LoxObject;
+}
+
+namespace pimentel
+{
+    class Expression;
     class Binary;
     class Grouping;
     class Literal;
@@ -16,7 +27,6 @@ namespace pimentel
     public:
         using RetType = T;
     public:
-        ExpressionVisitor() = default;
         virtual ~ExpressionVisitor() = default;
 
         virtual RetType visit(Binary&) = 0;
@@ -26,5 +36,9 @@ namespace pimentel
     };
 
     using ExprVisitorString = ExpressionVisitor<std::string>;
+
+    using LoxVal = std::variant<std::unique_ptr<LoxObject>, Token::LiteralType>;
+
+    using ExprVisitorLoxVal = ExpressionVisitor<LoxVal>;
 
 } // namespace pimentel
