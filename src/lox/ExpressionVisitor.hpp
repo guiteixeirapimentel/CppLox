@@ -37,7 +37,7 @@ namespace pimentel
 
     using ExprVisitorString = ExpressionVisitor<std::string>;
 
-    using LoxVal = std::variant<std::unique_ptr<LoxObject>, Token::LiteralType>;
+    using LoxVal = std::variant<std::unique_ptr<LoxObject>, void*, double, std::string, bool>;
 
     using ExprVisitorLoxVal = ExpressionVisitor<LoxVal>;
 

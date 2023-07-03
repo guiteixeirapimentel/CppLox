@@ -10,62 +10,25 @@ using namespace pimentel;
 
 namespace
 {
-    bool isTruthy(const std::unique_ptr<LoxObject>& obj)
-    {
-        return obj.get() != nullptr;
-    }
-
-    bool isTruthy(const Token::LiteralType& literal)
+    bool isTruthy(const Interpreter::RetType& literal)
     {
         return std::visit(overloaded{
             [](const bool& val) { return val; },
             [](void* val) { return val != nullptr; },
+            [](const std::unique_ptr<LoxObject>& obj) { return obj.get() != nullptr; },
             [](const auto&) { return true; }
         }, literal);
     }
 
-    const auto doNothingLiteral = [](const Token::LiteralType&)
-        {return Interpreter::RetType{};};
-    const auto doNothingLoxObj = [](const std::unique_ptr<LoxObject>&)
-        {return Interpreter::RetType{};};
-
-    template<typename T1, typename T2>
-    Interpreter::RetType treat(const Interpreter::RetType& val, const T1& literalCallback, const T2& loxObjCallback)
-    {
-        return std::visit(overloaded{
-            [loxObjCallback](const std::unique_ptr<LoxObject>& obj) { return loxObjCallback(obj); },
-            [literalCallback](const Token::LiteralType& literal) { return literalCallback(literal); },
-            [](const auto& _) { (void)_; /*assert(0);*/ return Interpreter::RetType{}; }
-        }, val);
-    }
-
-    template<typename T1, typename T2>
+    template<typename T1>
     Interpreter::RetType treat(const Interpreter::RetType& val1, const Interpreter::RetType& val2,
-        const T1& literalCallback, const T2& loxObjCallback, const auto& mismatchingCallback)
+        const T1& literalCallback, const auto& mismatchingCallback)
     {
         if(val1.index() != val2.index())
         {
             return mismatchingCallback(val1, val2);
         }
-
-        if(std::holds_alternative<std::unique_ptr<LoxObject>>(val1))
-        {
-            const auto& ptr1 = *std::get_if<std::unique_ptr<LoxObject>>(&val1);
-            const auto& ptr2 = *std::get_if<std::unique_ptr<LoxObject>>(&val2);
-
-            assert(ptr1);
-            assert(ptr2);
-
-            return loxObjCallback(ptr1, ptr2);
-        }
-
-        if(std::holds_alternative<Token::LiteralType>(val1))
-        {
-            const auto& lit1 = *std::get_if<Token::LiteralType>(&val1);
-            const auto& lit2 = *std::get_if<Token::LiteralType>(&val2);
-
-            return literalCallback(lit1, lit2);
-        }
+        return literalCallback(val1, val2);
         
         /*assert(0);*/
 
@@ -95,9 +58,10 @@ void Interpreter::interpret(Expression& expr)
         [](const std::unique_ptr<LoxObject>& obj) {
             std::cout << "[Lox obj] = " << obj.get() << std::endl;
         },
-        [](const Token::LiteralType& literal) {
-            std::cout << literalToString(literal) << std::endl;
-        }
+        [](const std::string& arg) { std::cout << arg << std::endl; },
+        [](void* unused_) { (void)unused_; std::cout <<  std::string{"NULL"} << std::endl; },
+        [](const bool& arg) { std::cout << std::string{arg ? "true" : "false"} << std::endl; },
+        [](const auto& arg) { std::cout << std::to_string(arg) << std::endl; },
     }, val);
 }
 
@@ -106,19 +70,20 @@ Interpreter::RetType Interpreter::visit(Binary& expr)
     auto left = evaluate(*expr.left);
     auto right = evaluate(*expr.right);
 
-    return treat(left, right, [&expr](const auto& leftLit, const auto& rightLit)
+    return treat(left, right, [&expr](const auto& leftVal, const auto& rightVal)
     {
-        if(leftLit.index() != rightLit.index())
+        if(leftVal.index() != rightVal.index())
         {
-            return handleMismatching(leftLit, rightLit, expr.operatorType);
+            return handleMismatching(leftVal, rightVal, expr.operatorType);
         }
 
         return std::visit(overloaded{
             [](void*){ return RetType{}; },
-            [&rightLit, &expr](const std::string& leftStr)
+            [](const std::unique_ptr<LoxObject>&){ return RetType{}; },
+            [&rightVal, &expr](const std::string& leftStr)
             {
                 using T = std::remove_cvref_t<decltype(leftStr)>;
-                const auto rightStr = *std::get_if<T>(&rightLit);
+                const auto rightStr = *std::get_if<T>(&rightVal);
 
                 switch(expr.operatorType.getType())
                 {
@@ -134,18 +99,18 @@ Interpreter::RetType Interpreter::visit(Binary& expr)
                     break;
                 }
             },
-            [&rightLit, &expr](const bool& leftVal)
+            [&rightVal, &expr](const bool& leftV)
             {
-                using T = std::remove_cvref_t<decltype(leftVal)>;
-                const auto rightVal = *std::get_if<T>(&rightLit);
+                using T = std::remove_cvref_t<decltype(leftV)>;
+                const auto rightV = *std::get_if<T>(&rightVal);
 
                 switch(expr.operatorType.getType())
                 {
                     case TokenType::BANG_EQUAL:
-                        return RetType{leftVal != rightVal};
+                        return RetType{leftV != rightV};
                     break;
                     case TokenType::EQUAL_EQUAL:
-                        return RetType{leftVal == rightVal};
+                        return RetType{leftV == rightV};
                     default:
                         /*assert(0);*/
                         return RetType{};
@@ -153,42 +118,42 @@ Interpreter::RetType Interpreter::visit(Binary& expr)
                 }
                 return RetType{};
             },
-            [&rightLit, &expr](const double& leftVal)
+            [&rightVal, &expr](const double& leftV)
             {
-                using T = std::remove_cvref_t<decltype(leftVal)>;
-                const auto rightVal = *std::get_if<T>(&rightLit);
+                using T = std::remove_cvref_t<decltype(leftV)>;
+                const auto rightV = *std::get_if<T>(&rightVal);
 
                 switch(expr.operatorType.getType())
                 {
                     case TokenType::MINUS:
-                        return RetType{leftVal - rightVal};
+                        return RetType{leftV - rightV};
                     break;
                     case TokenType::PLUS:
-                        return RetType{leftVal + rightVal};
+                        return RetType{leftV + rightV};
                     break;
                     case TokenType::SLASH:
-                        return RetType{leftVal / rightVal};
+                        return RetType{leftV / rightV};
                     break;
                     case TokenType::STAR:
-                        return RetType{leftVal * rightVal};
+                        return RetType{leftV * rightV};
                     break;
                     case TokenType::GREATER:
-                        return RetType{leftVal > rightVal};
+                        return RetType{leftV > rightV};
                     break;
                     case TokenType::GREATER_EQUAL:
-                        return RetType{leftVal >= rightVal};
+                        return RetType{leftV >= rightV};
                     break;
                     case TokenType::LESS:
-                        return RetType{leftVal < rightVal};
+                        return RetType{leftV < rightV};
                     break;
                     case TokenType::LESS_EQUAL:
-                        return RetType{leftVal <= rightVal};
+                        return RetType{leftV <= rightV};
                     break;
                     case TokenType::BANG_EQUAL:
-                        return RetType{leftVal != rightVal};
+                        return RetType{leftV != rightV};
                     break;
                     case TokenType::EQUAL_EQUAL:
-                        return RetType{leftVal == rightVal};
+                        return RetType{leftV == rightV};
                     break;
                     default:
                         /*assert(0);*/
@@ -196,8 +161,8 @@ Interpreter::RetType Interpreter::visit(Binary& expr)
                     break;
                 }
             }
-        }, leftLit);
-    }, [](const auto&, const auto&) { return RetType{};},
+        }, leftVal);
+    },
     [&expr](const auto& lhs, const auto& rhs) {
         return handleMismatching(lhs, rhs, expr.operatorType);
     });
@@ -210,45 +175,30 @@ Interpreter::RetType Interpreter::visit(Grouping& expr)
 
 Interpreter::RetType Interpreter::visit(Literal& expr)
 {
-    return expr.value;
+    return std::visit([](const auto& val)
+        { return RetType{val};}, expr.value);
 }
 
 Interpreter::RetType Interpreter::visit(Unary& expr)
 {
     auto rhs = evaluate(*expr.right);
 
-    return treat(rhs,
-        [&](const auto& lit){
-            switch(expr.operatorType.getType())
-            {
-                case TokenType::MINUS:
-                    return std::visit(overloaded{
-                        [](const double& rhs) { return RetType{-rhs}; },
-                        [](const auto& rhs) { (void) rhs; /*assert(0);*/ return RetType{};}
-                    }, rhs);
-                break;
-                case TokenType::BANG:
-                    return RetType{!isTruthy(lit)};
-                break;
-                default:
-                    /*assert(0);*/
-                    return RetType{};
-                break;
-            }
-        },
-        [&](const auto& obj){
-            switch(expr.operatorType.getType())
-            {
-                case TokenType::BANG:
-                    return RetType{!isTruthy(obj)};
-                break;
-                default:
-                    /*assert(0);*/
-                    return RetType{};
-                break;
-            }
-        }
-    );
+    switch(expr.operatorType.getType())
+    {
+        case TokenType::MINUS:
+            return std::visit(overloaded{
+                [](const double& rhs) { return RetType{-rhs}; },
+                [](const auto& rhs) { (void) rhs; /*assert(0);*/ return RetType{};}
+            }, rhs);
+        break;
+        case TokenType::BANG:
+            return RetType{!isTruthy(rhs)};
+        break;
+        default:
+            /*assert(0);*/
+            return RetType{};
+        break;
+    }
 }
 
 Interpreter::RetType Interpreter::evaluate(Expression& expr)
