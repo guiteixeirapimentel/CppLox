@@ -77,90 +77,96 @@ Interpreter::RetType Interpreter::visit(Binary& expr)
             return handleMismatching(leftVal, rightVal, expr.operatorType);
         }
 
+        const auto handleString = [&rightVal, &expr](const std::string& leftStr)
+        {
+            using T = std::remove_cvref_t<decltype(leftStr)>;
+            const auto rightStr = *std::get_if<T>(&rightVal);
+
+            switch(expr.operatorType.getType())
+            {
+                case TokenType::EQUAL_EQUAL:
+                    return RetType{leftStr == rightStr};
+                break;
+                case TokenType::PLUS:
+                    return RetType{leftStr + rightStr};
+                break;
+                default:
+                    /*assert(0);*/
+                    return RetType{};
+                break;
+            }
+        };
+
+        const auto handleBoolean = [&rightVal, &expr](const bool& leftV)
+        {
+            using T = std::remove_cvref_t<decltype(leftV)>;
+            const auto rightV = *std::get_if<T>(&rightVal);
+
+            switch(expr.operatorType.getType())
+            {
+                case TokenType::BANG_EQUAL:
+                    return RetType{leftV != rightV};
+                break;
+                case TokenType::EQUAL_EQUAL:
+                    return RetType{leftV == rightV};
+                default:
+                    /*assert(0);*/
+                    return RetType{};
+                break;
+            }
+            return RetType{};
+        };
+
+        const auto handleNumeric = [&rightVal, &expr](const double& leftV)
+        {
+            using T = std::remove_cvref_t<decltype(leftV)>;
+            const auto rightV = *std::get_if<T>(&rightVal);
+
+            switch(expr.operatorType.getType())
+            {
+                case TokenType::MINUS:
+                    return RetType{leftV - rightV};
+                break;
+                case TokenType::PLUS:
+                    return RetType{leftV + rightV};
+                break;
+                case TokenType::SLASH:
+                    return RetType{leftV / rightV};
+                break;
+                case TokenType::STAR:
+                    return RetType{leftV * rightV};
+                break;
+                case TokenType::GREATER:
+                    return RetType{leftV > rightV};
+                break;
+                case TokenType::GREATER_EQUAL:
+                    return RetType{leftV >= rightV};
+                break;
+                case TokenType::LESS:
+                    return RetType{leftV < rightV};
+                break;
+                case TokenType::LESS_EQUAL:
+                    return RetType{leftV <= rightV};
+                break;
+                case TokenType::BANG_EQUAL:
+                    return RetType{leftV != rightV};
+                break;
+                case TokenType::EQUAL_EQUAL:
+                    return RetType{leftV == rightV};
+                break;
+                default:
+                    /*assert(0);*/
+                    return RetType{};
+                break;
+            }
+        };
+
         return std::visit(overloaded{
             [](void*){ return RetType{}; },
             [](const std::unique_ptr<LoxObject>&){ return RetType{}; },
-            [&rightVal, &expr](const std::string& leftStr)
-            {
-                using T = std::remove_cvref_t<decltype(leftStr)>;
-                const auto rightStr = *std::get_if<T>(&rightVal);
-
-                switch(expr.operatorType.getType())
-                {
-                    case TokenType::EQUAL_EQUAL:
-                        return RetType{leftStr == rightStr};
-                    break;
-                    case TokenType::PLUS:
-                        return RetType{leftStr + rightStr};
-                    break;
-                    default:
-                        /*assert(0);*/
-                        return RetType{};
-                    break;
-                }
-            },
-            [&rightVal, &expr](const bool& leftV)
-            {
-                using T = std::remove_cvref_t<decltype(leftV)>;
-                const auto rightV = *std::get_if<T>(&rightVal);
-
-                switch(expr.operatorType.getType())
-                {
-                    case TokenType::BANG_EQUAL:
-                        return RetType{leftV != rightV};
-                    break;
-                    case TokenType::EQUAL_EQUAL:
-                        return RetType{leftV == rightV};
-                    default:
-                        /*assert(0);*/
-                        return RetType{};
-                    break;
-                }
-                return RetType{};
-            },
-            [&rightVal, &expr](const double& leftV)
-            {
-                using T = std::remove_cvref_t<decltype(leftV)>;
-                const auto rightV = *std::get_if<T>(&rightVal);
-
-                switch(expr.operatorType.getType())
-                {
-                    case TokenType::MINUS:
-                        return RetType{leftV - rightV};
-                    break;
-                    case TokenType::PLUS:
-                        return RetType{leftV + rightV};
-                    break;
-                    case TokenType::SLASH:
-                        return RetType{leftV / rightV};
-                    break;
-                    case TokenType::STAR:
-                        return RetType{leftV * rightV};
-                    break;
-                    case TokenType::GREATER:
-                        return RetType{leftV > rightV};
-                    break;
-                    case TokenType::GREATER_EQUAL:
-                        return RetType{leftV >= rightV};
-                    break;
-                    case TokenType::LESS:
-                        return RetType{leftV < rightV};
-                    break;
-                    case TokenType::LESS_EQUAL:
-                        return RetType{leftV <= rightV};
-                    break;
-                    case TokenType::BANG_EQUAL:
-                        return RetType{leftV != rightV};
-                    break;
-                    case TokenType::EQUAL_EQUAL:
-                        return RetType{leftV == rightV};
-                    break;
-                    default:
-                        /*assert(0);*/
-                        return RetType{};
-                    break;
-                }
-            }
+            handleString,
+            handleBoolean,
+            handleNumeric,
         }, leftVal);
     },
     [&expr](const auto& lhs, const auto& rhs) {
