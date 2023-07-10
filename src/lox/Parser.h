@@ -5,6 +5,7 @@
 #include <cassert>
 #include <memory>
 #include "Expression.h"
+#include "Statement.h"
 #include "ErrorManager.h"
 
 namespace pimentel
@@ -15,9 +16,13 @@ namespace pimentel
         Parser(const std::vector<Token>& tokens);
         ~Parser() = default;
 
-        std::unique_ptr<Expression> parse();
+        std::vector<std::unique_ptr<Statement>> parse();
 
     private:
+        std::unique_ptr<Statement> doStmt();
+        std::unique_ptr<Statement> doPrintStmt();
+        std::unique_ptr<Statement> doExprStmt();
+
         std::unique_ptr<Expression> doExpression();
         std::unique_ptr<Expression> doEquality();
         std::unique_ptr<Expression> doComparison();

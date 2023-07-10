@@ -36,11 +36,42 @@ bool Parser::match(const T& tokenTypes)
     return false;
 }
 
-std::unique_ptr<Expression> Parser::parse()
+std::vector<std::unique_ptr<Statement>> Parser::parse()
 {
-    return doExpression();
+    std::vector<std::unique_ptr<Statement>> stmts{};
+
+    while(!isAtEnd())
+    {
+        stmts.emplace_back(doStmt());
+    }
+    
+    return stmts;
 }
 
+std::unique_ptr<Statement> Parser::doStmt()
+{
+    if(match(TokenType::PRINT)) return doPrintStmt();
+
+    return doExprStmt();
+}
+
+std::unique_ptr<Statement> Parser::doPrintStmt()
+{
+    auto val = doExpression();
+
+    consume(TokenType::SEMICOLON, "Expect ';' after value.");
+
+    return std::make_unique<PrintStmt>(std::move(val));
+}
+
+std::unique_ptr<Statement> Parser::doExprStmt()
+{
+    auto val = doExpression();
+
+    consume(TokenType::SEMICOLON, "Expect ';' after value.");
+
+    return std::make_unique<ExpressionStmt>(std::move(val));
+}
 
 std::unique_ptr<Expression> Parser::doExpression()
 {

@@ -24,19 +24,19 @@ namespace
 
         Parser p{tokens};
 
-        AstPrinter astPrinter;
+        // AstPrinter astPrinter;
 
-        const auto expr = p.parse();
+        const auto stmts = p.parse();
 
-        if(!expr || ErrorManager::get().hasError())
+        if(!stmts.size() || ErrorManager::get().hasError())
         {
             std::cout << "Errors found, please fix." << std::endl;
 
             return;
         }
 
-        // std::cout << astPrinter.print(*expr) << std::endl;
-        interpreter.interpret(*expr);
+        // std::cout << astPrinter.print(*stmts) << std::endl;
+        interpreter.interpret(stmts);
     }
 
     std::string readAllTextFromFile(const std::string& filename)
