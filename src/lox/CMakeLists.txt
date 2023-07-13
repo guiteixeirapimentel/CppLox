@@ -17,6 +17,9 @@ set(LOX_SOURCE
     Parser.h
     Interpreter.cpp
     Interpreter.h
+    Environment.cpp
+    Environment.h
+    LoxVal.h
 )
 
 add_library(lox_lib ${LOX_SOURCE})

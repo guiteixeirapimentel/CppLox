@@ -7,6 +7,7 @@ namespace pimentel
     class Statement;
     class ExpressionStmt;
     class PrintStmt;
+    class VarStmt;
 }
 
 namespace pimentel
@@ -21,6 +22,7 @@ namespace pimentel
 
         virtual RetType visit(ExpressionStmt&) = 0;
         virtual RetType visit(PrintStmt&) = 0;
+        virtual RetType visit(VarStmt&) = 0;
     };
 
     using StmtVisitor = StmtVisitor_T<void>;

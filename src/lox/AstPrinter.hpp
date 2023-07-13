@@ -53,6 +53,16 @@ namespace pimentel
                 std::array{std::reference_wrapper{*expr.right}});
         }
 
+        RetType visit(Variable& expr) override
+        {
+            return expr.name.getLexeme();
+        }
+
+        RetType visit(Assignment& expr) override
+        {
+            return expr.name.getLexeme();
+        }
+
     private:
         template<typename T>
         std::string parenthesize(const std::string& name, const T& exprRefWrapList)

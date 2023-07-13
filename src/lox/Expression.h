@@ -86,4 +86,30 @@ namespace pimentel
         ACCEPT_IMPL(ExprVisitorString);
         ACCEPT_IMPL(ExprVisitorLoxVal);
     };
+
+    struct Variable : public Expression
+    {
+        Variable() = default;
+        Variable(const Token& name) : name(name) {};
+
+        Token name;
+
+        ACCEPT_IMPL(ExprVisitorString);
+        ACCEPT_IMPL(ExprVisitorLoxVal);
+    };
+
+    struct Assignment : public Expression
+    {
+        Assignment() = default;
+        Assignment(Token name, std::unique_ptr<Expression> value)
+            :
+            name(name), value(std::move(value))
+        {}
+
+        Token name;
+        std::unique_ptr<Expression> value;
+
+        ACCEPT_IMPL(ExprVisitorString);
+        ACCEPT_IMPL(ExprVisitorLoxVal);
+    };
 }

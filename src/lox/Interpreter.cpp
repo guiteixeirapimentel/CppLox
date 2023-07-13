@@ -16,7 +16,7 @@ namespace
         return std::visit(overloaded{
             [](const bool& val) { return val; },
             [](void* val) { return val != nullptr; },
-            [](const std::unique_ptr<LoxObject>& obj) { return obj.get() != nullptr; },
+            [](const std::shared_ptr<LoxObject>& obj) { return obj.get() != nullptr; },
             [](const auto&) { return true; }
         }, literal);
     }
@@ -149,7 +149,7 @@ Interpreter::RetType_expr Interpreter::visit(Binary& expr)
 
         return std::visit(overloaded{
             [](void*){ return RetType_expr{}; },
-            [](const std::unique_ptr<LoxObject>&){ return RetType_expr{}; },
+            [](const std::shared_ptr<LoxObject>&){ return RetType_expr{}; },
             handleString,
             handleBoolean,
             handleNumeric,
@@ -193,6 +193,20 @@ Interpreter::RetType_expr Interpreter::visit(Unary& expr)
     }
 }
 
+Interpreter::RetType_expr Interpreter::visit(Variable& var)
+{
+    return m_environment.get(var.name.getLexeme());
+}
+
+Interpreter::RetType_expr Interpreter::visit(Assignment& expr)
+{
+    auto value = evaluate(*expr.value);
+
+    m_environment.assign(expr.name.getLexeme(), value);
+
+    return value;
+}
+
 Interpreter::RetType_stmt Interpreter::visit(ExpressionStmt& exprStmt)
 {
     evaluate(*exprStmt.expr);
@@ -203,7 +217,7 @@ Interpreter::RetType_stmt Interpreter::visit(PrintStmt& printStmt)
     auto val = evaluate(*printStmt.expr);
 
     std::visit(overloaded{
-        [](const std::unique_ptr<LoxObject>& obj) {
+        [](const std::shared_ptr<LoxObject>& obj) {
             std::cout << "[Lox obj] = " << obj.get() << std::endl;
         },
         [](const std::string& arg) { std::cout << arg << std::endl; },
@@ -211,6 +225,12 @@ Interpreter::RetType_stmt Interpreter::visit(PrintStmt& printStmt)
         [](const bool& arg) { std::cout << std::string{arg ? "true" : "false"} << std::endl; },
         [](const auto& arg) { std::cout << std::to_string(arg) << std::endl; },
     }, val);
+}
+
+Interpreter::RetType_stmt pimentel::Interpreter::visit(VarStmt& varStmt)
+{
+    m_environment.define(varStmt.name.getLexeme(),
+        varStmt.initializer ? evaluate(*varStmt.initializer) : LoxVal{});
 }
 
 Interpreter::RetType_expr Interpreter::evaluate(Expression& expr)

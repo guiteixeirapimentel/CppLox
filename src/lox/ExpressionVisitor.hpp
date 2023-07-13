@@ -1,9 +1,5 @@
 #pragma once
-#include <variant>
-#include <string>
-#include <memory>
-#include "Token.h"
-#include "LoxObject.hpp"
+#include "LoxVal.h"
 
 namespace pimentel
 {
@@ -17,6 +13,8 @@ namespace pimentel
     class Grouping;
     class Literal;
     class Unary;
+    class Variable;
+    class Assignment;
 }
 
 namespace pimentel
@@ -33,11 +31,11 @@ namespace pimentel
         virtual RetType visit(Grouping&) = 0;
         virtual RetType visit(Literal&) = 0;
         virtual RetType visit(Unary&) = 0;
+        virtual RetType visit(Variable&) = 0;
+        virtual RetType visit(Assignment&) = 0;
     };
 
     using ExprVisitorString = ExpressionVisitor<std::string>;
-
-    using LoxVal = std::variant<std::unique_ptr<LoxObject>, void*, double, std::string, bool>;
 
     using ExprVisitorLoxVal = ExpressionVisitor<LoxVal>;
 

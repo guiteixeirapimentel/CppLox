@@ -32,4 +32,23 @@ namespace pimentel
 
         std::unique_ptr<Expression> expr;
     };
+
+    struct VarStmt : public Statement
+    {
+        VarStmt() = default;
+        VarStmt(const Token& name)
+            :
+            VarStmt(name, {nullptr})
+        {}
+        VarStmt(const Token& name, std::unique_ptr<Expression> init)
+            :
+            initializer(std::move(init)),
+            name(name)
+        {}
+
+        ACCEPT_IMPL(StmtVisitor);
+
+        std::unique_ptr<Expression> initializer = nullptr;
+        Token name;
+    };
 }

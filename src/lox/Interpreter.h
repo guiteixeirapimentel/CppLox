@@ -5,6 +5,7 @@
 #include <vector>
 #include <variant>
 #include "Token.h"
+#include "Environment.h"
 
 namespace pimentel
 {
@@ -33,11 +34,16 @@ namespace pimentel
         RetType_expr visit(Grouping&) override;
         RetType_expr visit(Literal&) override;
         RetType_expr visit(Unary&) override;
+        RetType_expr visit(Variable&) override;
+        RetType_expr visit(Assignment&) override;
 
         RetType_stmt visit(ExpressionStmt&) override;
         RetType_stmt visit(PrintStmt&) override;
+        RetType_stmt visit(VarStmt&) override;
 
         RetType_expr evaluate(Expression&);
 
+    private:
+        Environment m_environment;
     };
 }

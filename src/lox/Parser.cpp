@@ -42,10 +42,37 @@ std::vector<std::unique_ptr<Statement>> Parser::parse()
 
     while(!isAtEnd())
     {
-        stmts.emplace_back(doStmt());
+        stmts.emplace_back(doDeclaration());
     }
     
     return stmts;
+}
+
+std::unique_ptr<Statement> Parser::doDeclaration()
+{
+    if(match(TokenType::VAR)) return doVarDecl();
+
+    return doStmt();
+}
+
+std::unique_ptr<Statement> Parser::doVarDecl()
+{
+    const auto name = advance();
+
+    if(name.getType() != TokenType::IDENTIFIER)
+    {
+        ErrorManager::get().report(name, "Expected identifier!");
+        return {};
+    }
+
+    auto initExpr = match(TokenType::EQUAL) ? doExpression() :
+        std::unique_ptr<Expression>{};
+
+    auto varDecl = std::make_unique<VarStmt>(name, std::move(initExpr));
+
+    consume(TokenType::SEMICOLON, "Expect ';' after var decl.");
+
+    return varDecl;
 }
 
 std::unique_ptr<Statement> Parser::doStmt()
@@ -75,7 +102,30 @@ std::unique_ptr<Statement> Parser::doExprStmt()
 
 std::unique_ptr<Expression> Parser::doExpression()
 {
-    return doEquality();
+    return doAssignment();
+}
+
+std::unique_ptr<Expression> Parser::doAssignment()
+{
+    auto expr = doEquality();
+
+    if(match(TokenType::EQUAL))
+    {
+        auto val = doAssignment();
+
+        const auto exprAsVar = dynamic_cast<Variable*>(expr.get());
+
+        if(exprAsVar)
+        {
+            auto name = exprAsVar->name;
+            return std::make_unique<Assignment>(name, std::move(val));
+        }
+
+        const auto equals = previous();
+        error(equals, "Invalid assignment target!");
+    }
+
+    return expr;
 }
 
 std::unique_ptr<Expression> Parser::doEquality()
@@ -164,6 +214,11 @@ std::unique_ptr<Expression> Parser::doPrimary()
         auto expr = doExpression();
         consume(TokenType::RIGHT_PAREN, "Expect ')' after expression.");
         return std::make_unique<Grouping>(std::move(expr));
+    }
+
+    if(match(TokenType::IDENTIFIER))
+    {
+        return std::make_unique<Variable>(previous());
     }
 
     ErrorManager::get().report(peek(), "Expected expression.");

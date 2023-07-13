@@ -19,11 +19,17 @@ namespace pimentel
         std::vector<std::unique_ptr<Statement>> parse();
 
     private:
+
+        std::unique_ptr<Statement> doDeclaration();
+
+        std::unique_ptr<Statement> doVarDecl();
+
         std::unique_ptr<Statement> doStmt();
         std::unique_ptr<Statement> doPrintStmt();
         std::unique_ptr<Statement> doExprStmt();
 
         std::unique_ptr<Expression> doExpression();
+        std::unique_ptr<Expression> doAssignment();
         std::unique_ptr<Expression> doEquality();
         std::unique_ptr<Expression> doComparison();
         std::unique_ptr<Expression> doTerm();
