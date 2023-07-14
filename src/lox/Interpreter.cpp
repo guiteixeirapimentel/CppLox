@@ -15,6 +15,7 @@ namespace
     {
         return std::visit(overloaded{
             [](const bool& val) { return val; },
+            [](const double& val) { return val != 0.0; },
             [](void* val) { return val != nullptr; },
             [](const std::shared_ptr<LoxObject>& obj) { return obj.get() != nullptr; },
             [](const auto&) { return true; }
@@ -72,6 +73,8 @@ Interpreter::RetType_expr Interpreter::visit(Binary& expr)
             {
                 case TokenType::EQUAL_EQUAL:
                     return RetType_expr{leftStr == rightStr};
+                case TokenType::BANG_EQUAL:
+                    return RetType_expr{leftStr != rightStr};
                 break;
                 case TokenType::PLUS:
                     return RetType_expr{leftStr + rightStr};
