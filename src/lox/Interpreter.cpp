@@ -195,14 +195,14 @@ Interpreter::RetType_expr Interpreter::visit(Unary& expr)
 
 Interpreter::RetType_expr Interpreter::visit(Variable& var)
 {
-    return m_environment.get(var.name.getLexeme());
+    return m_currEnv->get(var.name.getLexeme());
 }
 
 Interpreter::RetType_expr Interpreter::visit(Assignment& expr)
 {
     auto value = evaluate(*expr.value);
 
-    m_environment.assign(expr.name.getLexeme(), value);
+    m_currEnv->assign(expr.name.getLexeme(), value);
 
     return value;
 }
@@ -229,13 +229,33 @@ Interpreter::RetType_stmt Interpreter::visit(PrintStmt& printStmt)
 
 Interpreter::RetType_stmt pimentel::Interpreter::visit(VarStmt& varStmt)
 {
-    m_environment.define(varStmt.name.getLexeme(),
+    m_currEnv->define(varStmt.name.getLexeme(),
         varStmt.initializer ? evaluate(*varStmt.initializer) : LoxVal{});
+}
+
+Interpreter::RetType_stmt Interpreter::visit(BlockStmt& blockStmt)
+{
+    auto env = Environment{m_currEnv};
+    executeBlock(blockStmt.stmts, env);
 }
 
 Interpreter::RetType_expr Interpreter::evaluate(Expression& expr)
 {
     return expr.accept(*this);
+}
+
+void pimentel::Interpreter::executeBlock(const std::vector<std::unique_ptr<Statement>>& stmts, Environment& env)
+{
+    Environment* previous = m_currEnv;
+
+    m_currEnv = &env;
+
+    for(const auto& stmt : stmts)
+    {
+        execute(*stmt);
+    }
+
+    m_currEnv = previous;
 }
 
 void Interpreter::execute(Statement& stmt)

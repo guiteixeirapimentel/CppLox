@@ -8,6 +8,7 @@ namespace pimentel
     class ExpressionStmt;
     class PrintStmt;
     class VarStmt;
+    class BlockStmt;
 }
 
 namespace pimentel
@@ -23,6 +24,7 @@ namespace pimentel
         virtual RetType visit(ExpressionStmt&) = 0;
         virtual RetType visit(PrintStmt&) = 0;
         virtual RetType visit(VarStmt&) = 0;
+        virtual RetType visit(BlockStmt&) = 0;
     };
 
     using StmtVisitor = StmtVisitor_T<void>;

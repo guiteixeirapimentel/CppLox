@@ -22,7 +22,6 @@ namespace pimentel
         using RetType_stmt = StmtVisitor::RetType;
 
     public:
-        ~Interpreter() = default;
 
         void interpret(const std::vector<std::unique_ptr<Statement>>& stmts);
 
@@ -40,10 +39,14 @@ namespace pimentel
         RetType_stmt visit(ExpressionStmt&) override;
         RetType_stmt visit(PrintStmt&) override;
         RetType_stmt visit(VarStmt&) override;
+        RetType_stmt visit(BlockStmt&) override;
 
         RetType_expr evaluate(Expression&);
 
+        void executeBlock(const std::vector<std::unique_ptr<Statement>>& stmts, Environment& env);
+
     private:
-        Environment m_environment;
+        Environment m_env;
+        Environment* m_currEnv = &m_env;
     };
 }

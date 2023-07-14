@@ -78,6 +78,7 @@ std::unique_ptr<Statement> Parser::doVarDecl()
 std::unique_ptr<Statement> Parser::doStmt()
 {
     if(match(TokenType::PRINT)) return doPrintStmt();
+    if(match(TokenType::LEFT_BRACE)) return doBlockStmt();
 
     return doExprStmt();
 }
@@ -98,6 +99,25 @@ std::unique_ptr<Statement> Parser::doExprStmt()
     consume(TokenType::SEMICOLON, "Expect ';' after value.");
 
     return std::make_unique<ExpressionStmt>(std::move(val));
+}
+
+std::unique_ptr<Statement> Parser::doBlockStmt()
+{
+    return std::make_unique<BlockStmt>(doScopeStmts());
+}
+
+std::vector<std::unique_ptr<Statement>> Parser::doScopeStmts()
+{
+    std::vector<std::unique_ptr<Statement>> res;
+
+    while(!check(TokenType::RIGHT_BRACE) && !isAtEnd())
+    {
+        res.push_back(doDeclaration());
+    }
+
+    consume(TokenType::RIGHT_BRACE, "Expect '}' after block.");
+
+    return res;
 }
 
 std::unique_ptr<Expression> Parser::doExpression()

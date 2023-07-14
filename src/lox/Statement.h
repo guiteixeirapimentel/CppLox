@@ -51,4 +51,18 @@ namespace pimentel
         std::unique_ptr<Expression> initializer = nullptr;
         Token name;
     };
+
+    struct BlockStmt : public Statement
+    {
+        BlockStmt() = default;
+        BlockStmt(std::vector<std::unique_ptr<Statement>>&& stmts)
+            :
+            stmts(std::move(stmts))
+        {}
+        ~BlockStmt() = default;
+
+        ACCEPT_IMPL(StmtVisitor);
+
+        std::vector<std::unique_ptr<Statement>> stmts;
+    };
 }

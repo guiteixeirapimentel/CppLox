@@ -1,6 +1,7 @@
 #pragma once
 #include <unordered_map>
 #include <string>
+#include <memory>
 #include "Token.h"
 #include "LoxVal.h"
 
@@ -9,7 +10,8 @@ namespace pimentel
     class Environment
     {
     public:
-        Environment() = default;
+        Environment();
+        Environment(Environment* enclosing);
         ~Environment() = default;
 
         void define(const std::string& name, LoxVal value);
@@ -17,6 +19,7 @@ namespace pimentel
         LoxVal get(const std::string& name) const;
 
     private:
-        std::unordered_map<std::string, LoxVal> m_globalVars;
+        Environment* m_enclosing;
+        std::unordered_map<std::string, LoxVal> m_vars;
     };
 }

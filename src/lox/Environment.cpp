@@ -3,33 +3,54 @@
 
 using namespace pimentel;
 
+Environment::Environment(Environment* enclosing)
+    :
+    m_enclosing(enclosing)
+{}
+
+Environment::Environment()
+    :
+    Environment(nullptr)
+{}
+
 void Environment::define(const std::string& name, LoxVal value)
 {
-    m_globalVars.emplace(name, value);
+    m_vars.emplace(name, value);
 }
 
 void Environment::assign(const std::string& name, LoxVal value)
 {
-    auto it = m_globalVars.find(name);
+    auto it = m_vars.find(name);
 
-    if(it == m_globalVars.end())
+    if(it != m_vars.end())
     {
-        ErrorManager::get().report(0, "Undefined variable '" + name + "'.");
+        it->second = value;
         return;
     }
 
-    it->second = value;
+    if(m_enclosing)
+    {
+        m_enclosing->assign(name, value);
+        return;
+    }
+
+    ErrorManager::get().report(0, "Undefined variable '" + name + "'.");
 }
 
 LoxVal Environment::get(const std::string& name) const
 {
-    const auto it = m_globalVars.find(name);
-
-    if(it == m_globalVars.end())
+    const auto it = m_vars.find(name);
+    
+    if(it != m_vars.end())
     {
-        ErrorManager::get().report(0, "Variable does not exist: " + name);
-        return {};
+        return it->second;
     }
 
-    return it->second;
+    if(m_enclosing)
+    {
+        return m_enclosing->get(name);
+    }
+
+    ErrorManager::get().report(0, "Variable does not exist: " + name);
+    return {};
 }

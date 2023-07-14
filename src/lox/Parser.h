@@ -27,6 +27,9 @@ namespace pimentel
         std::unique_ptr<Statement> doStmt();
         std::unique_ptr<Statement> doPrintStmt();
         std::unique_ptr<Statement> doExprStmt();
+        std::unique_ptr<Statement> doBlockStmt();
+
+        std::vector<std::unique_ptr<Statement>> doScopeStmts();
 
         std::unique_ptr<Expression> doExpression();
         std::unique_ptr<Expression> doAssignment();
