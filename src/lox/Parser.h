@@ -28,6 +28,8 @@ namespace pimentel
         std::unique_ptr<Statement> doPrintStmt();
         std::unique_ptr<Statement> doExprStmt();
         std::unique_ptr<Statement> doBlockStmt();
+        std::unique_ptr<Statement> doIfStmt();
+        std::unique_ptr<Statement> doWhileStmt();
 
         std::vector<std::unique_ptr<Statement>> doScopeStmts();
 

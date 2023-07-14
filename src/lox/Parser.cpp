@@ -78,6 +78,8 @@ std::unique_ptr<Statement> Parser::doVarDecl()
 std::unique_ptr<Statement> Parser::doStmt()
 {
     if(match(TokenType::PRINT)) return doPrintStmt();
+    if(match(TokenType::IF)) return doIfStmt();
+    if(match(TokenType::WHILE)) return doWhileStmt();
     if(match(TokenType::LEFT_BRACE)) return doBlockStmt();
 
     return doExprStmt();
@@ -104,6 +106,27 @@ std::unique_ptr<Statement> Parser::doExprStmt()
 std::unique_ptr<Statement> Parser::doBlockStmt()
 {
     return std::make_unique<BlockStmt>(doScopeStmts());
+}
+
+std::unique_ptr<Statement> pimentel::Parser::doIfStmt()
+{
+    auto expr = doExpression();
+    auto thenBlock = doStmt();
+    auto elseBlock = std::unique_ptr<Statement>{};
+    if(check(TokenType::ELSE))
+    {
+        advance();
+        elseBlock = doStmt();
+    }
+    return std::make_unique<IfStmt>(std::move(expr), std::move(thenBlock), std::move(elseBlock));
+}
+
+std::unique_ptr<Statement> Parser::doWhileStmt()
+{
+    auto expr = doExpression();
+    auto block = doStmt();
+
+    return std::make_unique<WhileStmt>(std::move(expr), std::move(block));
 }
 
 std::vector<std::unique_ptr<Statement>> Parser::doScopeStmts()

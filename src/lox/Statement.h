@@ -65,4 +65,40 @@ namespace pimentel
 
         std::vector<std::unique_ptr<Statement>> stmts;
     };
+
+    struct IfStmt : public Statement
+    {
+        IfStmt() = default;
+        IfStmt(std::unique_ptr<Expression> expr, std::unique_ptr<Statement> block, std::unique_ptr<Statement> elseblock)
+            :
+            expr(std::move(expr)),
+            block(std::move(block)),
+            elseblock(std::move(elseblock))
+        {}
+        ~IfStmt() = default;
+
+        ACCEPT_IMPL(StmtVisitor);
+
+        std::unique_ptr<Expression> expr;
+        std::unique_ptr<Statement> block;
+        std::unique_ptr<Statement> elseblock;
+    };
+
+    struct WhileStmt : public Statement
+    {
+        WhileStmt() = default;
+
+        WhileStmt(std::unique_ptr<Expression> expr, std::unique_ptr<Statement> block)
+            :
+            expr(std::move(expr)),
+            block(std::move(block))
+        {}
+
+        ~WhileStmt() = default;
+
+        ACCEPT_IMPL(StmtVisitor);
+
+        std::unique_ptr<Expression> expr;
+        std::unique_ptr<Statement> block;
+    };
 }

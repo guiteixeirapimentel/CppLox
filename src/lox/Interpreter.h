@@ -40,6 +40,8 @@ namespace pimentel
         RetType_stmt visit(PrintStmt&) override;
         RetType_stmt visit(VarStmt&) override;
         RetType_stmt visit(BlockStmt&) override;
+        RetType_stmt visit(IfStmt&) override;
+        RetType_stmt visit(WhileStmt&) override;
 
         RetType_expr evaluate(Expression&);
 

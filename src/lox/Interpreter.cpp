@@ -239,6 +239,28 @@ Interpreter::RetType_stmt Interpreter::visit(BlockStmt& blockStmt)
     executeBlock(blockStmt.stmts, env);
 }
 
+Interpreter::RetType_stmt Interpreter::visit(IfStmt& ifStmt)
+{
+    auto exprVal = evaluate(*ifStmt.expr);
+
+    if(isTruthy(exprVal))
+    {
+        ifStmt.block->accept(*this);
+    }
+    else if(ifStmt.elseblock)
+    {
+        ifStmt.elseblock->accept(*this);
+    }
+}
+
+Interpreter::RetType_stmt Interpreter::visit(WhileStmt& whileStmt)
+{
+    while(isTruthy(evaluate(*whileStmt.expr)))
+    {
+        whileStmt.block->accept(*this);
+    }
+}
+
 Interpreter::RetType_expr Interpreter::evaluate(Expression& expr)
 {
     return expr.accept(*this);
