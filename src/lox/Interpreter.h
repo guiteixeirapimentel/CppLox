@@ -7,6 +7,8 @@
 #include "Token.h"
 #include "Environment.h"
 
+#include <sstream>
+
 namespace pimentel
 {
     class LoxObject;
@@ -22,6 +24,9 @@ namespace pimentel
         using RetType_stmt = StmtVisitor::RetType;
 
     public:
+        Interpreter(std::ostream& printStream);
+        Interpreter();
+        ~Interpreter() = default;
 
         void interpret(const std::vector<std::unique_ptr<Statement>>& stmts);
 
@@ -50,5 +55,7 @@ namespace pimentel
     private:
         Environment m_env;
         Environment* m_currEnv = &m_env;
+
+        std::ostream& m_printStream;
     };
 }

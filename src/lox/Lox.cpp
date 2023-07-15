@@ -62,6 +62,11 @@ namespace
     }
 }
 
+Lox::Lox()
+    :
+    m_interpreter(std::cout)
+{}
+
 void Lox::runFile(const std::string& filename)
 {
     auto dataStream = readAllTextFromFile(filename);

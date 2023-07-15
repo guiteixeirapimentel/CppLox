@@ -220,13 +220,13 @@ Interpreter::RetType_stmt Interpreter::visit(PrintStmt& printStmt)
     auto val = evaluate(*printStmt.expr);
 
     std::visit(overloaded{
-        [](const std::shared_ptr<LoxObject>& obj) {
-            std::cout << "[Lox obj] = " << obj.get() << std::endl;
+        [this](const std::shared_ptr<LoxObject>& obj) {
+            m_printStream << "[Lox obj] = " << obj.get() << std::endl;
         },
-        [](const std::string& arg) { std::cout << arg << std::endl; },
-        [](void* unused_) { (void)unused_; std::cout <<  std::string{"NULL"} << std::endl; },
-        [](const bool& arg) { std::cout << std::string{arg ? "true" : "false"} << std::endl; },
-        [](const auto& arg) { std::cout << std::to_string(arg) << std::endl; },
+        [this](const std::string& arg) { m_printStream << arg << std::endl; },
+        [this](void* unused_) { (void)unused_; m_printStream <<  std::string{"NULL"} << std::endl; },
+        [this](const bool& arg) { m_printStream << std::string{arg ? "true" : "false"} << std::endl; },
+        [this](const auto& arg) { m_printStream << std::to_string(arg) << std::endl; },
     }, val);
 }
 
@@ -287,6 +287,16 @@ void Interpreter::execute(Statement& stmt)
 {
     stmt.accept(*this);
 }
+
+Interpreter::Interpreter(std::ostream& printStream)
+    :
+    m_printStream(printStream)
+{}
+
+Interpreter::Interpreter()
+    :
+    Interpreter(std::cout)
+{}
 
 void Interpreter::interpret(const std::vector<std::unique_ptr<Statement>>& stmts)
 {

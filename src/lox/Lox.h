@@ -8,7 +8,7 @@ namespace pimentel
 class Lox
 {
 public:
-    Lox() = default;
+    Lox();
     ~Lox() = default;
 
     void runFile(const std::string& filename);
