@@ -60,6 +60,10 @@ static const auto testParams = std::vector{
         std::string{"0.000000\n1.000000\n2.000000\n3.000000\n4.000000\n5.000000\n6.000000\n7.000000\n8.000000\n9.000000\n10.000000\n"}
     },
     std::tuple{
+        std::string{"var i = 0; while(i < 10) { if(i>5) break; print(i); i = i + 1;} print(i);"},
+        std::string{"0.000000\n1.000000\n2.000000\n3.000000\n4.000000\n5.000000\n6.000000\n"}
+    },
+    std::tuple{
         std::string{"var i = 0; if(i) { print(true);} else { print(false);}"},
         std::string{"false\n"}
     },
@@ -74,6 +78,10 @@ static const auto testParams = std::vector{
     std::tuple{
         std::string{"print(\"a\" + \"b\" + \"...\");"},
         std::string{"ab...\n"}
+    },
+    std::tuple{
+        std::string{"while(1) { while(1) { break; } print(1); break;} print(\"finished\");"},
+        std::string{"1.000000\nfinished\n"}
     },
 };
 

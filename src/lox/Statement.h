@@ -5,6 +5,14 @@
 
 namespace pimentel
 {
+    enum class ScopeType
+    {
+        FUNCTION,
+        GLOBAL,
+        GLOBAL_FUNCTION,
+        FOR_WHILE,
+        FOR_WHILE_FUNCTION
+    };
     struct Statement
     {
         Statement() = default;
@@ -100,5 +108,13 @@ namespace pimentel
 
         std::unique_ptr<Expression> expr;
         std::unique_ptr<Statement> block;
+    };
+
+    struct BreakStmt : public Statement
+    {
+        BreakStmt() = default;
+        ~BreakStmt() = default;
+
+        ACCEPT_IMPL(StmtVisitor);
     };
 }

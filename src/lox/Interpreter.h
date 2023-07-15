@@ -47,6 +47,7 @@ namespace pimentel
         RetType_stmt visit(BlockStmt&) override;
         RetType_stmt visit(IfStmt&) override;
         RetType_stmt visit(WhileStmt&) override;
+        RetType_stmt visit(BreakStmt&) override;
 
         RetType_expr evaluate(Expression&);
 
@@ -54,8 +55,10 @@ namespace pimentel
 
     private:
         Environment m_env;
-        Environment* m_currEnv = &m_env;
+        Environment* m_currEnv;
 
         std::ostream& m_printStream;
+
+        bool m_foundBreakStmt;
     };
 }

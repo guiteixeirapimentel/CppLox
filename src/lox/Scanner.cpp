@@ -25,6 +25,7 @@ namespace
         { "true",   TokenType::TRUE },
         { "var",    TokenType::VAR },
         { "while",  TokenType::WHILE },
+        { "break", TokenType::BREAK },
     };
 
     bool isDigit(char c)

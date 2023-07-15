@@ -258,10 +258,17 @@ Interpreter::RetType_stmt Interpreter::visit(IfStmt& ifStmt)
 
 Interpreter::RetType_stmt Interpreter::visit(WhileStmt& whileStmt)
 {
-    while(isTruthy(evaluate(*whileStmt.expr)))
+    while(isTruthy(evaluate(*whileStmt.expr)) && !m_foundBreakStmt)
     {
         whileStmt.block->accept(*this);
     }
+
+    m_foundBreakStmt = false;
+}
+
+Interpreter::RetType_stmt Interpreter::visit(BreakStmt&)
+{
+    m_foundBreakStmt = true;
 }
 
 Interpreter::RetType_expr Interpreter::evaluate(Expression& expr)
@@ -278,6 +285,10 @@ void pimentel::Interpreter::executeBlock(const std::vector<std::unique_ptr<State
     for(const auto& stmt : stmts)
     {
         execute(*stmt);
+        if(m_foundBreakStmt)
+        {
+            break;
+        }
     }
 
     m_currEnv = previous;
@@ -290,7 +301,10 @@ void Interpreter::execute(Statement& stmt)
 
 Interpreter::Interpreter(std::ostream& printStream)
     :
-    m_printStream(printStream)
+    m_env(),
+    m_currEnv(&m_env),
+    m_printStream(printStream),
+    m_foundBreakStmt(false)
 {}
 
 Interpreter::Interpreter()

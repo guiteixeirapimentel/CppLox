@@ -42,17 +42,17 @@ std::vector<std::unique_ptr<Statement>> Parser::parse()
 
     while(!isAtEnd())
     {
-        stmts.emplace_back(doDeclaration());
+        stmts.emplace_back(doDeclaration(ScopeType::GLOBAL));
     }
     
     return stmts;
 }
 
-std::unique_ptr<Statement> Parser::doDeclaration()
+std::unique_ptr<Statement> Parser::doDeclaration(ScopeType scopeType)
 {
     if(match(TokenType::VAR)) return doVarDecl();
 
-    return doStmt();
+    return doStmt(scopeType);
 }
 
 std::unique_ptr<Statement> Parser::doVarDecl()
@@ -75,12 +75,13 @@ std::unique_ptr<Statement> Parser::doVarDecl()
     return varDecl;
 }
 
-std::unique_ptr<Statement> Parser::doStmt()
+std::unique_ptr<Statement> Parser::doStmt(ScopeType scopeType)
 {
     if(match(TokenType::PRINT)) return doPrintStmt();
-    if(match(TokenType::IF)) return doIfStmt();
-    if(match(TokenType::WHILE)) return doWhileStmt();
-    if(match(TokenType::LEFT_BRACE)) return doBlockStmt();
+    if(match(TokenType::IF)) return doIfStmt(scopeType);
+    if(match(TokenType::WHILE)) return doWhileStmt(scopeType);
+    if(match(TokenType::BREAK)) return doBreakStmt(scopeType);
+    if(match(TokenType::LEFT_BRACE)) return doBlockStmt(scopeType);
 
     return doExprStmt();
 }
@@ -103,39 +104,55 @@ std::unique_ptr<Statement> Parser::doExprStmt()
     return std::make_unique<ExpressionStmt>(std::move(val));
 }
 
-std::unique_ptr<Statement> Parser::doBlockStmt()
+std::unique_ptr<Statement> Parser::doBlockStmt(ScopeType scopeType)
 {
-    return std::make_unique<BlockStmt>(doScopeStmts());
+    return std::make_unique<BlockStmt>(doScopeStmts(scopeType));
 }
 
-std::unique_ptr<Statement> pimentel::Parser::doIfStmt()
+std::unique_ptr<Statement> pimentel::Parser::doIfStmt(ScopeType scopeType)
 {
     auto expr = doExpression();
-    auto thenBlock = doStmt();
+    auto thenBlock = doStmt(scopeType);
     auto elseBlock = std::unique_ptr<Statement>{};
     if(check(TokenType::ELSE))
     {
         advance();
-        elseBlock = doStmt();
+        elseBlock = doStmt(scopeType);
     }
     return std::make_unique<IfStmt>(std::move(expr), std::move(thenBlock), std::move(elseBlock));
 }
 
-std::unique_ptr<Statement> Parser::doWhileStmt()
+std::unique_ptr<Statement> Parser::doWhileStmt(ScopeType scopeType)
 {
+    const auto newScopeType = (scopeType == ScopeType::FUNCTION ||
+        scopeType == ScopeType::FOR_WHILE_FUNCTION) ? ScopeType::FOR_WHILE_FUNCTION : ScopeType::FOR_WHILE;
+
     auto expr = doExpression();
-    auto block = doStmt();
+    auto block = doStmt(newScopeType);
 
     return std::make_unique<WhileStmt>(std::move(expr), std::move(block));
 }
 
-std::vector<std::unique_ptr<Statement>> Parser::doScopeStmts()
+std::unique_ptr<Statement> Parser::doBreakStmt(ScopeType scopeType)
+{
+    if(scopeType != ScopeType::FOR_WHILE &&
+        scopeType != ScopeType::FOR_WHILE_FUNCTION)
+    {
+        ErrorManager::get().report(advance(), "'break' used out of loop expression.");
+        return {};
+    }
+
+    consume(TokenType::SEMICOLON, "Expect '}' after block.");
+    return std::make_unique<BreakStmt>();
+}
+
+std::vector<std::unique_ptr<Statement>> Parser::doScopeStmts(ScopeType scopeType)
 {
     std::vector<std::unique_ptr<Statement>> res;
 
     while(!check(TokenType::RIGHT_BRACE) && !isAtEnd())
     {
-        res.push_back(doDeclaration());
+        res.push_back(doDeclaration(scopeType));
     }
 
     consume(TokenType::RIGHT_BRACE, "Expect '}' after block.");

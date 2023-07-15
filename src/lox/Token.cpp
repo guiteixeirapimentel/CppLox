@@ -88,6 +88,8 @@ namespace
             return {"VAR"};
         case TokenType::WHILE:
             return {"WHILE"};
+        case TokenType::BREAK:
+            return {"BREAK"};
         case TokenType::ENDOFFILE:
             return {"ENDOFFILE"};
         }

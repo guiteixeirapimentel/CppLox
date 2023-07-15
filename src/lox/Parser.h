@@ -20,18 +20,19 @@ namespace pimentel
 
     private:
 
-        std::unique_ptr<Statement> doDeclaration();
+        std::unique_ptr<Statement> doDeclaration(ScopeType scopeType);
 
         std::unique_ptr<Statement> doVarDecl();
-
-        std::unique_ptr<Statement> doStmt();
         std::unique_ptr<Statement> doPrintStmt();
         std::unique_ptr<Statement> doExprStmt();
-        std::unique_ptr<Statement> doBlockStmt();
-        std::unique_ptr<Statement> doIfStmt();
-        std::unique_ptr<Statement> doWhileStmt();
 
-        std::vector<std::unique_ptr<Statement>> doScopeStmts();
+        std::unique_ptr<Statement> doStmt(ScopeType scopeType);
+        std::unique_ptr<Statement> doBlockStmt(ScopeType scopeType);
+        std::unique_ptr<Statement> doIfStmt(ScopeType scopeType);
+        std::unique_ptr<Statement> doWhileStmt(ScopeType scopeType);
+        std::unique_ptr<Statement> doBreakStmt(ScopeType scopeType);
+
+        std::vector<std::unique_ptr<Statement>> doScopeStmts(ScopeType scopeType);
 
         std::unique_ptr<Expression> doExpression();
         std::unique_ptr<Expression> doAssignment();
