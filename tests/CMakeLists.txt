@@ -13,22 +13,27 @@ FetchContent_MakeAvailable(googletest)
 enable_testing()
 include(GoogleTest)
 
+function (add_test name_test)
 
-add_executable(
-    AstVisitor_t
-    AstVisitor_t.cpp
-)
-target_link_libraries(
-    AstVisitor_t
-    PRIVATE
-    GTest::gtest_main
-    lox::Lox
-)
-target_include_directories(
-    AstVisitor_t
-    PRIVATE
-    ../src/
-)
+    add_executable(
+        ${name_test}
+        ${name_test}.cpp
+    )
+    target_link_libraries(
+        ${name_test}
+        PRIVATE
+        GTest::gtest_main
+        lox::Lox
+    )
+    target_include_directories(
+        ${name_test}
+        PRIVATE
+        ../src/
+    )
 
-gtest_discover_tests(AstVisitor_t)
-add_compile_definitions(AstVisitor_t PRIVATE TEST_MODE=1)
+    gtest_discover_tests(${name_test})
+    add_compile_definitions(${name_test} PRIVATE TEST_MODE=1)
+endfunction()
+
+add_test(AstVisitor_t)
+add_test(IntegrationTests_t)
