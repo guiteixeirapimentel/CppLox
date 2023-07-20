@@ -210,6 +210,28 @@ Interpreter::RetType_expr Interpreter::visit(Assignment& expr)
     return value;
 }
 
+Interpreter::RetType_expr Interpreter::visit(Logical& logical)
+{
+    auto val = isTruthy(evaluate(*logical.leftExpr));
+    switch(logical.op.getType())
+    {
+    case TokenType::AND:
+        if(val)
+        {
+            val = val && isTruthy(evaluate(*logical.rightExpr));
+        }
+    break;
+    case TokenType::OR:
+        val = val || isTruthy(evaluate(*logical.rightExpr));
+    break;
+    default:
+        ErrorManager::get().report(logical.op, "Invalid logical type!");
+    break;
+    }
+
+    return RetType_expr{val};
+}
+
 Interpreter::RetType_stmt Interpreter::visit(ExpressionStmt& exprStmt)
 {
     evaluate(*exprStmt.expr);

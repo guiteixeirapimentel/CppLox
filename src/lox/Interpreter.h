@@ -40,6 +40,7 @@ namespace pimentel
         RetType_expr visit(Unary&) override;
         RetType_expr visit(Variable&) override;
         RetType_expr visit(Assignment&) override;
+        RetType_expr visit(Logical&) override;
 
         RetType_stmt visit(ExpressionStmt&) override;
         RetType_stmt visit(PrintStmt&) override;

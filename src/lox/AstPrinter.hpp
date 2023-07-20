@@ -63,6 +63,11 @@ namespace pimentel
             return expr.name.getLexeme();
         }
 
+        RetType visit(Logical& expr) override
+        {
+            return expr.op.getLexeme();
+        }
+
     private:
         template<typename T>
         std::string parenthesize(const std::string& name, const T& exprRefWrapList)

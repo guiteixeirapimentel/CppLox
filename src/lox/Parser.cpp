@@ -167,7 +167,7 @@ std::unique_ptr<Expression> Parser::doExpression()
 
 std::unique_ptr<Expression> Parser::doAssignment()
 {
-    auto expr = doEquality();
+    auto expr = doLogical();
 
     if(match(TokenType::EQUAL))
     {
@@ -285,6 +285,43 @@ std::unique_ptr<Expression> Parser::doPrimary()
     
     // assert(0);
     return nullptr;
+}
+
+std::unique_ptr<Expression> pimentel::Parser::doLogical()
+{
+    return doLogicalOr();
+}
+
+std::unique_ptr<Expression> pimentel::Parser::doLogicalOr()
+{
+    auto expr = doLogicalAnd();
+
+    while(match(TokenType::OR))
+    {
+        Token op = previous();
+
+        auto right = doLogicalAnd();
+
+        expr = std::make_unique<Logical>(std::move(expr), op, std::move(right));
+    }
+
+    return expr;
+}
+
+std::unique_ptr<Expression> pimentel::Parser::doLogicalAnd()
+{
+    auto expr = doEquality();
+    
+    while(match(TokenType::AND))
+    {
+        Token op = previous();
+
+        auto right = doEquality();
+
+        expr = std::make_unique<Logical>(std::move(expr), op, std::move(right));
+    }
+
+    return expr;
 }
 
 Token Parser::consume(TokenType tokenType, const std::string& message)

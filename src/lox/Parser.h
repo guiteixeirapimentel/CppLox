@@ -42,6 +42,9 @@ namespace pimentel
         std::unique_ptr<Expression> doFactor();
         std::unique_ptr<Expression> doUnary();
         std::unique_ptr<Expression> doPrimary();
+        std::unique_ptr<Expression> doLogical();
+        std::unique_ptr<Expression> doLogicalOr();
+        std::unique_ptr<Expression> doLogicalAnd();
 
         Token consume(TokenType tokenType, const std::string& message);
 

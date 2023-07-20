@@ -112,4 +112,23 @@ namespace pimentel
         ACCEPT_IMPL(ExprVisitorString);
         ACCEPT_IMPL(ExprVisitorLoxVal);
     };
+
+    struct Logical : public Expression
+    {
+        Logical() = default;
+        Logical(std::unique_ptr<Expression> leftExpr, Token op, std::unique_ptr<Expression> rightExpr)
+            :
+            leftExpr(std::move(leftExpr)),
+            op(op),
+            rightExpr(std::move(rightExpr))
+        {}
+        ~Logical() = default;
+
+        ACCEPT_IMPL(ExprVisitorString);
+        ACCEPT_IMPL(ExprVisitorLoxVal);
+
+        std::unique_ptr<Expression> leftExpr;
+        Token op;
+        std::unique_ptr<Expression> rightExpr;
+    };
 }

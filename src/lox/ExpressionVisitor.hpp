@@ -15,6 +15,7 @@ namespace pimentel
     class Unary;
     class Variable;
     class Assignment;
+    class Logical;
 }
 
 namespace pimentel
@@ -33,6 +34,7 @@ namespace pimentel
         virtual RetType visit(Unary&) = 0;
         virtual RetType visit(Variable&) = 0;
         virtual RetType visit(Assignment&) = 0;
+        virtual RetType visit(Logical&) = 0;
     };
 
     using ExprVisitorString = ExpressionVisitor<std::string>;
