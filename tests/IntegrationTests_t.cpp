@@ -83,6 +83,22 @@ static const auto testParams = std::vector{
         std::string{"while(1) { while(1) { break; } print(1); break;} print(\"finished\");"},
         std::string{"1.000000\nfinished\n"}
     },
+    std::tuple{
+        std::string{"print (\"hi\" or 2);"},
+        std::string{"true\n"}
+    },
+    std::tuple{
+        std::string{"print (\"hi\" and false);"},
+        std::string{"false\n"}
+    },
+    std::tuple{
+        std::string{"var a = 0; var b; (a == 1) and (b = 10); print(b);"},
+        std::string{"[Lox obj] = 0\n"}
+    },
+    std::tuple{
+        std::string{"var a = 0; var b; (a == 0) and (b = 10); print(b);"},
+        std::string{"10.000000\n"}
+    },
 };
 
 INSTANTIATE_TEST_SUITE_P(BasicNumberTest, BasicIntegrationFixture,
