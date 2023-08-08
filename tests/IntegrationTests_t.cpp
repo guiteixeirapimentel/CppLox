@@ -99,6 +99,10 @@ static const auto testParams = std::vector{
         std::string{"var a = 0; var b; (a == 0) and (b = 10); print(b);"},
         std::string{"10.000000\n"}
     },
+    std::tuple{
+        std::string{"var i = 20; for(var i = 0; i < 5; i = i + 1) { print(i);} print(i);"},
+        std::string{"0.000000\n1.000000\n2.000000\n3.000000\n4.000000\n20.000000\n"}
+    }
 };
 
 INSTANTIATE_TEST_SUITE_P(BasicNumberTest, BasicIntegrationFixture,
