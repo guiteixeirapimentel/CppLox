@@ -80,6 +80,7 @@ std::unique_ptr<Statement> Parser::doStmt(ScopeType scopeType)
     if(match(TokenType::PRINT)) return doPrintStmt();
     if(match(TokenType::IF)) return doIfStmt(scopeType);
     if(match(TokenType::WHILE)) return doWhileStmt(scopeType);
+    if(match(TokenType::FOR)) return doForStmt(scopeType);
     if(match(TokenType::BREAK)) return doBreakStmt(scopeType);
     if(match(TokenType::LEFT_BRACE)) return doBlockStmt(scopeType);
 
@@ -131,6 +132,24 @@ std::unique_ptr<Statement> Parser::doWhileStmt(ScopeType scopeType)
     auto block = doStmt(newScopeType);
 
     return std::make_unique<WhileStmt>(std::move(expr), std::move(block));
+}
+
+std::unique_ptr<Statement> pimentel::Parser::doForStmt(ScopeType scopeType)
+{
+    const auto newScopeType = (scopeType == ScopeType::FUNCTION ||
+        scopeType == ScopeType::FOR_WHILE_FUNCTION) ? ScopeType::FOR_WHILE_FUNCTION : ScopeType::FOR_WHILE;
+
+    consume(TokenType::LEFT_PAREN, "Expected '(' after for.");
+
+    auto variableDef = doDeclaration(newScopeType);
+    auto expr = doExpression();
+    consume(TokenType::SEMICOLON, "Expected ';' after expr.");
+    auto incExpr = doExpression();
+    consume(TokenType::RIGHT_PAREN, "Expected ')' after for.");
+
+    auto block = doStmt(newScopeType);
+
+    return std::make_unique<ForStmt>(std::move(variableDef), std::move(expr), std::move(incExpr), std::move(block));
 }
 
 std::unique_ptr<Statement> Parser::doBreakStmt(ScopeType scopeType)

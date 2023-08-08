@@ -30,6 +30,7 @@ namespace pimentel
         std::unique_ptr<Statement> doBlockStmt(ScopeType scopeType);
         std::unique_ptr<Statement> doIfStmt(ScopeType scopeType);
         std::unique_ptr<Statement> doWhileStmt(ScopeType scopeType);
+        std::unique_ptr<Statement> doForStmt(ScopeType scopeType);
         std::unique_ptr<Statement> doBreakStmt(ScopeType scopeType);
 
         std::vector<std::unique_ptr<Statement>> doScopeStmts(ScopeType scopeType);

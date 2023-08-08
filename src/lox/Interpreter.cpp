@@ -293,6 +293,25 @@ Interpreter::RetType_stmt Interpreter::visit(BreakStmt&)
     m_foundBreakStmt = true;
 }
 
+Interpreter::RetType_stmt pimentel::Interpreter::visit(ForStmt& forStmt)
+{
+    auto env = Environment{m_currEnv};
+    Environment* previous = m_currEnv;
+
+    m_currEnv = &env;
+
+    forStmt.variableDef->accept(*this);
+    while(isTruthy(evaluate(*forStmt.expr)) && !m_foundBreakStmt)
+    {
+        forStmt.block->accept(*this);
+        forStmt.incStmt->accept(*this);
+    }
+
+    m_foundBreakStmt = false;
+
+    m_currEnv = previous;
+}
+
 Interpreter::RetType_expr Interpreter::evaluate(Expression& expr)
 {
     return expr.accept(*this);

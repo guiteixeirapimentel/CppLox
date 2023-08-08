@@ -110,6 +110,26 @@ namespace pimentel
         std::unique_ptr<Statement> block;
     };
 
+    struct ForStmt : public Statement
+    {
+        ForStmt() = default;
+        ForStmt(std::unique_ptr<Statement> variableDef, std::unique_ptr<Expression> expr, std::unique_ptr<Expression> incStmt, std::unique_ptr<Statement> block)
+            :
+            variableDef(std::move(variableDef)),
+            expr(std::move(expr)),
+            incStmt(std::move(incStmt)),
+            block(std::move(block))
+        {}
+        ~ForStmt() = default;
+
+        ACCEPT_IMPL(StmtVisitor);
+
+        std::unique_ptr<Statement> variableDef;
+        std::unique_ptr<Expression> expr;
+        std::unique_ptr<Expression> incStmt;
+        std::unique_ptr<Statement> block;
+    };
+
     struct BreakStmt : public Statement
     {
         BreakStmt() = default;
