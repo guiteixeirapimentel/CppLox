@@ -102,6 +102,22 @@ static const auto testParams = std::vector{
     std::tuple{
         std::string{"var i = 20; for(var i = 0; i < 5; i = i + 1) { print(i);} print(i);"},
         std::string{"0.000000\n1.000000\n2.000000\n3.000000\n4.000000\n20.000000\n"}
+    },
+    std::tuple{
+        std::string{"var i = 0; for(;;) { print(i); i = i + 1; if(i>5) break; }"},
+        std::string{"0.000000\n1.000000\n2.000000\n3.000000\n4.000000\n5.000000\n"}
+    },
+    std::tuple{
+        std::string{"var i = 10; for(var i = 0;;) { print(i); i = i + 1; if(i>5) break; }"},
+        std::string{"0.000000\n1.000000\n2.000000\n3.000000\n4.000000\n5.000000\n"}
+    },
+    std::tuple{
+        std::string{"var i = 0; for(;i < 6;) { print(i); i = i + 1; }"},
+        std::string{"0.000000\n1.000000\n2.000000\n3.000000\n4.000000\n5.000000\n"}
+    },
+    std::tuple{
+        std::string{"var i = 0; for(;; i = i + 1) { if(!(i < 6)) break; print(i); }"},
+        std::string{"0.000000\n1.000000\n2.000000\n3.000000\n4.000000\n5.000000\n"}
     }
 };
 
