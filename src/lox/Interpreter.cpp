@@ -300,11 +300,19 @@ Interpreter::RetType_stmt pimentel::Interpreter::visit(ForStmt& forStmt)
 
     m_currEnv = &env;
 
-    forStmt.variableDef->accept(*this);
-    while(isTruthy(evaluate(*forStmt.expr)) && !m_foundBreakStmt)
+    if(forStmt.variableDef)
+    {
+        forStmt.variableDef->accept(*this);
+    }
+
+    const auto hasExpr = forStmt.expr != nullptr;
+    while((!hasExpr || isTruthy(evaluate(*forStmt.expr))) && !m_foundBreakStmt)
     {
         forStmt.block->accept(*this);
-        forStmt.incStmt->accept(*this);
+        if(forStmt.incStmt)
+        {
+            forStmt.incStmt->accept(*this);    
+        }
     }
 
     m_foundBreakStmt = false;

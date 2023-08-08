@@ -141,11 +141,25 @@ std::unique_ptr<Statement> pimentel::Parser::doForStmt(ScopeType scopeType)
 
     consume(TokenType::LEFT_PAREN, "Expected '(' after for.");
 
-    auto variableDef = doDeclaration(newScopeType);
-    auto expr = doExpression();
-    consume(TokenType::SEMICOLON, "Expected ';' after expr.");
-    auto incExpr = doExpression();
-    consume(TokenType::RIGHT_PAREN, "Expected ')' after for.");
+    std::unique_ptr<Statement> variableDef = nullptr;
+    std::unique_ptr<Expression> expr = nullptr;
+    std::unique_ptr<Expression> incExpr = nullptr;
+
+    if(!match(TokenType::SEMICOLON))
+    {
+        variableDef = doDeclaration(newScopeType);
+    }
+    
+    if(!match(TokenType::SEMICOLON))
+    {
+        expr = doExpression();
+        consume(TokenType::SEMICOLON, "Expected ';' after expr.");
+    }
+    if(!match(TokenType::RIGHT_PAREN))
+    {
+        incExpr = doExpression();
+        consume(TokenType::RIGHT_PAREN, "Expected ')' after for.");
+    }
 
     auto block = doStmt(newScopeType);
 
