@@ -7,10 +7,17 @@
 #include <cassert>
 #include <iostream>
 
+#include "BuiltinFunctions.hpp"
+
 using namespace pimentel;
 
 namespace
 {
+    void defineBuiltinFunctions(Environment& globalEnv)
+    {
+        globalEnv.define("clock", std::shared_ptr<LoxCallableStub>(new ClockFnc{}));
+    }
+
     bool isTruthy(const Interpreter::RetType_expr& literal)
     {
         return std::visit(overloaded{
@@ -386,7 +393,9 @@ Interpreter::Interpreter(std::ostream& printStream)
     m_currEnv(&m_env),
     m_printStream(printStream),
     m_foundBreakStmt(false)
-{}
+{
+    defineBuiltinFunctions(m_env);
+}
 
 Interpreter::Interpreter()
     :
