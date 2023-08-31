@@ -118,7 +118,11 @@ static const auto testParams = std::vector{
     std::tuple{
         std::string{"var i = 0; for(;; i = i + 1) { if(!(i < 6)) break; print(i); }"},
         std::string{"0.000000\n1.000000\n2.000000\n3.000000\n4.000000\n5.000000\n"}
-    }
+    },
+        std::tuple{
+        std::string{"var t1 = clock(); print(t1 - t1);"},
+        std::string{"0.000000\n"}
+    },
 };
 
 INSTANTIATE_TEST_SUITE_P(BasicNumberTest, BasicIntegrationFixture,
