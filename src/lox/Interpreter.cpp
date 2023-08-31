@@ -152,6 +152,7 @@ Interpreter::RetType_expr Interpreter::visit(Binary& expr)
 
         return std::visit(overloaded{
             [](void*){ return RetType_expr{}; },
+            [](const std::shared_ptr<LoxCallableStub>&){ return RetType_expr{}; },
             [](const std::shared_ptr<LoxObject>&){ return RetType_expr{}; },
             handleString,
             handleBoolean,
@@ -232,6 +233,36 @@ Interpreter::RetType_expr Interpreter::visit(Logical& logical)
     return RetType_expr{val};
 }
 
+Interpreter::RetType_expr Interpreter::visit(Call& callExpr)
+{
+    auto caleeEvaluated = evaluate(*callExpr.calee);
+
+    std::vector<Interpreter::RetType_expr> args;
+
+    for(const auto& arg : callExpr.arguments)
+    {
+        args.push_back(evaluate(*arg));
+    }
+
+    if(!std::holds_alternative<std::shared_ptr<LoxCallableStub>>(caleeEvaluated))
+    {
+        ErrorManager::get().report({}, "Trying to call non callable!");
+        return {};
+    }
+
+    auto& callable = std::get<std::shared_ptr<LoxCallableStub>>(caleeEvaluated)->get();
+
+    if(callable.arity != args.size())
+    {
+        std::string err = "Wrong number of args to function: ";
+        err += "got " + std::to_string(args.size()) + " expected " + std::to_string(callable.arity);
+        ErrorManager::get().report({}, err);
+        return {};
+    }
+
+    return callable.call(*this, args);
+}
+
 Interpreter::RetType_stmt Interpreter::visit(ExpressionStmt& exprStmt)
 {
     evaluate(*exprStmt.expr);
@@ -247,6 +278,7 @@ Interpreter::RetType_stmt Interpreter::visit(PrintStmt& printStmt)
         },
         [this](const std::string& arg) { m_printStream << arg << std::endl; },
         [this](void* unused_) { (void)unused_; m_printStream <<  std::string{"NULL"} << std::endl; },
+        [this](const std::shared_ptr<LoxCallableStub>& unused_) { (void)unused_; m_printStream <<  std::string{"[LoxCallable]"} << std::endl; },
         [this](const bool& arg) { m_printStream << std::string{arg ? "true" : "false"} << std::endl; },
         [this](const auto& arg) { m_printStream << std::to_string(arg) << std::endl; },
     }, val);
