@@ -2,9 +2,34 @@
 #include <variant>
 #include <memory>
 #include <string>
+#include <vector>
 #include "LoxObject.hpp"
 
 namespace pimentel
 {
-    using LoxVal = std::variant<std::shared_ptr<LoxObject>, void*, double, std::string, bool>;
+    class LoxCallable;
+
+    struct LoxCallableStub
+    {
+        LoxCallableStub() = default;
+        virtual ~LoxCallableStub() = default;
+        virtual LoxCallable& get() = 0;
+    };
+
+    template<typename T>
+    class ExpressionVisitor;
+}
+
+namespace pimentel
+{
+    using LoxVal = std::variant<std::shared_ptr<LoxObject>, void*, double, std::string, bool, std::shared_ptr<LoxCallableStub>>;
+
+    class LoxCallable : public LoxCallableStub
+    {
+    public:
+        LoxCallable& get() override { return *this; }
+        virtual LoxVal call(ExpressionVisitor<LoxVal>&, const std::vector<LoxVal>& argList) = 0;
+
+        size_t arity = 0;
+    };
 }
