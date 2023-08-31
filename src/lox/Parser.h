@@ -36,6 +36,8 @@ namespace pimentel
         std::vector<std::unique_ptr<Statement>> doScopeStmts(ScopeType scopeType);
 
         ExprPtr doExpression();
+        ExprPtr doCall();
+        ExprPtr doArgumentListAndFinishCall(ExprPtr&& callExpr);
         ExprPtr doAssignment();
         ExprPtr doEquality();
         ExprPtr doComparison();

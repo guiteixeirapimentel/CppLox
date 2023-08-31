@@ -198,6 +198,46 @@ ExprPtr Parser::doExpression()
     return doAssignment();
 }
 
+ExprPtr Parser::doCall()
+{
+    ExprPtr expr = doPrimary();
+
+    while(true)
+    {
+        if(match(TokenType::LEFT_PAREN))
+        {
+            expr = doArgumentListAndFinishCall(std::move(expr));
+        }
+        else
+        {
+            break;
+        }
+    }
+
+    return expr;
+}
+
+ExprPtr pimentel::Parser::doArgumentListAndFinishCall(ExprPtr&& callExpr)
+{
+    std::vector<ExprPtr> argList;
+
+    if(!check(TokenType::RIGHT_PAREN))
+    {
+        do
+        {
+            if(argList.size() > 255)
+            {
+                error(peek(), "Can't have more than 255 arguments.");
+            }
+            argList.emplace_back(doExpression());
+        } while (match(TokenType::COMMA));
+        
+    }
+
+    auto paren = consume(TokenType::RIGHT_PAREN, "Expect ')' after arguments on call.");
+
+    return std::make_unique<Call>(std::move(callExpr), paren, std::move(argList));
+}
 
 ExprPtr Parser::doAssignment()
 {
