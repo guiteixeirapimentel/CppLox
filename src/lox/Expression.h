@@ -3,6 +3,7 @@
 #include "ExpressionVisitor.hpp"
 #include "VisitorUtils.hpp"
 #include <memory>
+#include <vector>
 
 namespace pimentel
 {
@@ -133,5 +134,23 @@ namespace pimentel
         Token op;
         ExprPtr rightExpr;
     };
+
+    struct Call : public Expression
+    {
+        Call() = default;
+        Call(ExprPtr calee, Token paren, std::vector<ExprPtr>&& arguments)
+            :
+            calee(std::move(calee)),
+            paren(paren),
+            arguments(std::move(arguments))
+        {}
+        ~Call() = default;
+
+        ACCEPT_IMPL(ExprVisitorString);
+        ACCEPT_IMPL(ExprVisitorLoxVal);
+
+        ExprPtr calee;
+        Token paren;
+        std::vector<ExprPtr> arguments;
     };
 }
