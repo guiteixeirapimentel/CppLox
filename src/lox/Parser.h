@@ -35,17 +35,17 @@ namespace pimentel
 
         std::vector<std::unique_ptr<Statement>> doScopeStmts(ScopeType scopeType);
 
-        std::unique_ptr<Expression> doExpression();
-        std::unique_ptr<Expression> doAssignment();
-        std::unique_ptr<Expression> doEquality();
-        std::unique_ptr<Expression> doComparison();
-        std::unique_ptr<Expression> doTerm();
-        std::unique_ptr<Expression> doFactor();
-        std::unique_ptr<Expression> doUnary();
-        std::unique_ptr<Expression> doPrimary();
-        std::unique_ptr<Expression> doLogical();
-        std::unique_ptr<Expression> doLogicalOr();
-        std::unique_ptr<Expression> doLogicalAnd();
+        ExprPtr doExpression();
+        ExprPtr doAssignment();
+        ExprPtr doEquality();
+        ExprPtr doComparison();
+        ExprPtr doTerm();
+        ExprPtr doFactor();
+        ExprPtr doUnary();
+        ExprPtr doPrimary();
+        ExprPtr doLogical();
+        ExprPtr doLogicalOr();
+        ExprPtr doLogicalAnd();
 
         Token consume(TokenType tokenType, const std::string& message);
 

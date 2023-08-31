@@ -66,7 +66,7 @@ std::unique_ptr<Statement> Parser::doVarDecl()
     }
 
     auto initExpr = match(TokenType::EQUAL) ? doExpression() :
-        std::unique_ptr<Expression>{};
+        ExprPtr{};
 
     auto varDecl = std::make_unique<VarStmt>(name, std::move(initExpr));
 
@@ -142,8 +142,8 @@ std::unique_ptr<Statement> pimentel::Parser::doForStmt(ScopeType scopeType)
     consume(TokenType::LEFT_PAREN, "Expected '(' after for.");
 
     std::unique_ptr<Statement> variableDef = nullptr;
-    std::unique_ptr<Expression> expr = nullptr;
-    std::unique_ptr<Expression> incExpr = nullptr;
+    ExprPtr expr = nullptr;
+    ExprPtr incExpr = nullptr;
 
     if(!match(TokenType::SEMICOLON))
     {
@@ -193,12 +193,13 @@ std::vector<std::unique_ptr<Statement>> Parser::doScopeStmts(ScopeType scopeType
     return res;
 }
 
-std::unique_ptr<Expression> Parser::doExpression()
+ExprPtr Parser::doExpression()
 {
     return doAssignment();
 }
 
-std::unique_ptr<Expression> Parser::doAssignment()
+
+ExprPtr Parser::doAssignment()
 {
     auto expr = doLogical();
 
@@ -221,7 +222,7 @@ std::unique_ptr<Expression> Parser::doAssignment()
     return expr;
 }
 
-std::unique_ptr<Expression> Parser::doEquality()
+ExprPtr Parser::doEquality()
 {
     auto expr = doComparison();
 
@@ -235,7 +236,7 @@ std::unique_ptr<Expression> Parser::doEquality()
     return expr;
 }
 
-std::unique_ptr<Expression> Parser::doComparison()
+ExprPtr Parser::doComparison()
 {
     auto expr = doTerm();
 
@@ -251,7 +252,7 @@ std::unique_ptr<Expression> Parser::doComparison()
     return expr;
 }
 
-std::unique_ptr<Expression> Parser::doTerm()
+ExprPtr Parser::doTerm()
 {
     auto expr = doFactor();
 
@@ -265,7 +266,7 @@ std::unique_ptr<Expression> Parser::doTerm()
     return expr;
 }
 
-std::unique_ptr<Expression> Parser::doFactor()
+ExprPtr Parser::doFactor()
 {
     auto expr = doUnary();
 
@@ -279,7 +280,7 @@ std::unique_ptr<Expression> Parser::doFactor()
     return expr;
 }
 
-std::unique_ptr<Expression> Parser::doUnary()
+ExprPtr Parser::doUnary()
 {
     if(match(std::array{TokenType::BANG, TokenType::MINUS}))
     {
@@ -288,10 +289,10 @@ std::unique_ptr<Expression> Parser::doUnary()
         return std::make_unique<Unary>(op, std::move(right));
     }
 
-    return doPrimary();
+    return doCall();
 }
 
-std::unique_ptr<Expression> Parser::doPrimary()
+ExprPtr Parser::doPrimary()
 {
     if(match(TokenType::FALSE)) return std::make_unique<Literal>(false);
     if(match(TokenType::TRUE)) return std::make_unique<Literal>(true);
@@ -320,12 +321,12 @@ std::unique_ptr<Expression> Parser::doPrimary()
     return nullptr;
 }
 
-std::unique_ptr<Expression> pimentel::Parser::doLogical()
+ExprPtr pimentel::Parser::doLogical()
 {
     return doLogicalOr();
 }
 
-std::unique_ptr<Expression> pimentel::Parser::doLogicalOr()
+ExprPtr pimentel::Parser::doLogicalOr()
 {
     auto expr = doLogicalAnd();
 
@@ -341,7 +342,7 @@ std::unique_ptr<Expression> pimentel::Parser::doLogicalOr()
     return expr;
 }
 
-std::unique_ptr<Expression> pimentel::Parser::doLogicalAnd()
+ExprPtr pimentel::Parser::doLogicalAnd()
 {
     auto expr = doEquality();
     

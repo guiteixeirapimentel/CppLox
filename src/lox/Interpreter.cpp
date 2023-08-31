@@ -325,7 +325,7 @@ Interpreter::RetType_expr Interpreter::evaluate(Expression& expr)
     return expr.accept(*this);
 }
 
-void pimentel::Interpreter::executeBlock(const std::vector<std::unique_ptr<Statement>>& stmts, Environment& env)
+void pimentel::Interpreter::executeBlock(const std::vector<StmtPtr>& stmts, Environment& env)
 {
     Environment* previous = m_currEnv;
 
@@ -361,7 +361,7 @@ Interpreter::Interpreter()
     Interpreter(std::cout)
 {}
 
-void Interpreter::interpret(const std::vector<std::unique_ptr<Statement>>& stmts)
+void Interpreter::interpret(const std::vector<StmtPtr>& stmts)
 {
     for (const auto& stmt : stmts)
     {

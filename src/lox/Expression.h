@@ -15,16 +15,18 @@ namespace pimentel
         virtual ExprVisitorLoxVal::RetType accept(ExprVisitorLoxVal& visitor) = 0;
     };
 
+    using ExprPtr = std::unique_ptr<Expression>;
+
     struct Binary : public Expression
     {
         Binary() = default;
-        Binary(std::unique_ptr<Expression> left, Token operatorType, std::unique_ptr<Expression> right)
+        Binary(ExprPtr left, Token operatorType, ExprPtr right)
             :
             left(std::move(left)), operatorType(operatorType), right(std::move(right)){}
 
-        std::unique_ptr<Expression> left;
+        ExprPtr left;
         Token operatorType;
-        std::unique_ptr<Expression> right;
+        ExprPtr right;
 
         ACCEPT_IMPL(ExprVisitorString);
         ACCEPT_IMPL(ExprVisitorLoxVal);
@@ -33,8 +35,8 @@ namespace pimentel
     struct Grouping : public Expression
     {
         Grouping() = default;
-        Grouping(std::unique_ptr<Expression> expr) : expr(std::move(expr)){};
-        std::unique_ptr<Expression> expr;
+        Grouping(ExprPtr expr) : expr(std::move(expr)){};
+        ExprPtr expr;
 
         ACCEPT_IMPL(ExprVisitorString);
         ACCEPT_IMPL(ExprVisitorLoxVal);
@@ -76,12 +78,12 @@ namespace pimentel
     struct Unary : public Expression
     {
         Unary() = default;
-        Unary(Token operatorType, std::unique_ptr<Expression> right)
+        Unary(Token operatorType, ExprPtr right)
             :
             operatorType (operatorType), right(std::move(right)){};
 
         Token operatorType;
-        std::unique_ptr<Expression> right;
+        ExprPtr right;
 
         ACCEPT_IMPL(ExprVisitorString);
         ACCEPT_IMPL(ExprVisitorLoxVal);
@@ -101,13 +103,13 @@ namespace pimentel
     struct Assignment : public Expression
     {
         Assignment() = default;
-        Assignment(Token name, std::unique_ptr<Expression> value)
+        Assignment(Token name, ExprPtr value)
             :
             name(name), value(std::move(value))
         {}
 
         Token name;
-        std::unique_ptr<Expression> value;
+        ExprPtr value;
 
         ACCEPT_IMPL(ExprVisitorString);
         ACCEPT_IMPL(ExprVisitorLoxVal);
@@ -116,7 +118,7 @@ namespace pimentel
     struct Logical : public Expression
     {
         Logical() = default;
-        Logical(std::unique_ptr<Expression> leftExpr, Token op, std::unique_ptr<Expression> rightExpr)
+        Logical(ExprPtr leftExpr, Token op, ExprPtr rightExpr)
             :
             leftExpr(std::move(leftExpr)),
             op(op),
@@ -127,8 +129,9 @@ namespace pimentel
         ACCEPT_IMPL(ExprVisitorString);
         ACCEPT_IMPL(ExprVisitorLoxVal);
 
-        std::unique_ptr<Expression> leftExpr;
+        ExprPtr leftExpr;
         Token op;
-        std::unique_ptr<Expression> rightExpr;
+        ExprPtr rightExpr;
+    };
     };
 }

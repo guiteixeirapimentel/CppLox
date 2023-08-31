@@ -21,24 +21,26 @@ namespace pimentel
         virtual StmtVisitor::RetType accept(StmtVisitor& visitor) = 0;
     };
 
+    using StmtPtr = std::unique_ptr<Statement>;
+
     struct ExpressionStmt : public Statement
     {
         ExpressionStmt() = default;
-        ExpressionStmt(std::unique_ptr<Expression> expr): expr(std::move(expr)){};
+        ExpressionStmt(ExprPtr expr): expr(std::move(expr)){};
 
         ACCEPT_IMPL(StmtVisitor);
 
-        std::unique_ptr<Expression> expr;
+        ExprPtr expr;
     };
 
     struct PrintStmt : public Statement
     {
         PrintStmt() = default;
-        PrintStmt(std::unique_ptr<Expression> expr): expr(std::move(expr)){};
+        PrintStmt(ExprPtr expr): expr(std::move(expr)){};
 
         ACCEPT_IMPL(StmtVisitor);
 
-        std::unique_ptr<Expression> expr;
+        ExprPtr expr;
     };
 
     struct VarStmt : public Statement
@@ -48,7 +50,7 @@ namespace pimentel
             :
             VarStmt(name, {nullptr})
         {}
-        VarStmt(const Token& name, std::unique_ptr<Expression> init)
+        VarStmt(const Token& name, ExprPtr init)
             :
             initializer(std::move(init)),
             name(name)
@@ -56,14 +58,14 @@ namespace pimentel
 
         ACCEPT_IMPL(StmtVisitor);
 
-        std::unique_ptr<Expression> initializer = nullptr;
+        ExprPtr initializer = nullptr;
         Token name;
     };
 
     struct BlockStmt : public Statement
     {
         BlockStmt() = default;
-        BlockStmt(std::vector<std::unique_ptr<Statement>>&& stmts)
+        BlockStmt(std::vector<StmtPtr>&& stmts)
             :
             stmts(std::move(stmts))
         {}
@@ -71,13 +73,13 @@ namespace pimentel
 
         ACCEPT_IMPL(StmtVisitor);
 
-        std::vector<std::unique_ptr<Statement>> stmts;
+        std::vector<StmtPtr> stmts;
     };
 
     struct IfStmt : public Statement
     {
         IfStmt() = default;
-        IfStmt(std::unique_ptr<Expression> expr, std::unique_ptr<Statement> block, std::unique_ptr<Statement> elseblock)
+        IfStmt(ExprPtr expr, StmtPtr block, StmtPtr elseblock)
             :
             expr(std::move(expr)),
             block(std::move(block)),
@@ -87,16 +89,16 @@ namespace pimentel
 
         ACCEPT_IMPL(StmtVisitor);
 
-        std::unique_ptr<Expression> expr;
-        std::unique_ptr<Statement> block;
-        std::unique_ptr<Statement> elseblock;
+        ExprPtr expr;
+        StmtPtr block;
+        StmtPtr elseblock;
     };
 
     struct WhileStmt : public Statement
     {
         WhileStmt() = default;
 
-        WhileStmt(std::unique_ptr<Expression> expr, std::unique_ptr<Statement> block)
+        WhileStmt(ExprPtr expr, StmtPtr block)
             :
             expr(std::move(expr)),
             block(std::move(block))
@@ -106,14 +108,14 @@ namespace pimentel
 
         ACCEPT_IMPL(StmtVisitor);
 
-        std::unique_ptr<Expression> expr;
-        std::unique_ptr<Statement> block;
+        ExprPtr expr;
+        StmtPtr block;
     };
 
     struct ForStmt : public Statement
     {
         ForStmt() = default;
-        ForStmt(std::unique_ptr<Statement> variableDef, std::unique_ptr<Expression> expr, std::unique_ptr<Expression> incStmt, std::unique_ptr<Statement> block)
+        ForStmt(StmtPtr variableDef, ExprPtr expr, ExprPtr incStmt, StmtPtr block)
             :
             variableDef(std::move(variableDef)),
             expr(std::move(expr)),
@@ -124,10 +126,10 @@ namespace pimentel
 
         ACCEPT_IMPL(StmtVisitor);
 
-        std::unique_ptr<Statement> variableDef;
-        std::unique_ptr<Expression> expr;
-        std::unique_ptr<Expression> incStmt;
-        std::unique_ptr<Statement> block;
+        StmtPtr variableDef;
+        ExprPtr expr;
+        ExprPtr incStmt;
+        StmtPtr block;
     };
 
     struct BreakStmt : public Statement
