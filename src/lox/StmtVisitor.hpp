@@ -13,6 +13,8 @@ namespace pimentel
     class WhileStmt;
     class BreakStmt;
     class ForStmt;
+    class FunctionDeclStmt;
+    class ReturnStmt;
 }
 
 namespace pimentel
@@ -33,6 +35,8 @@ namespace pimentel
         virtual RetType visit(WhileStmt&) = 0;
         virtual RetType visit(BreakStmt&) = 0;
         virtual RetType visit(ForStmt&) = 0;
+        virtual RetType visit(FunctionDeclStmt&) = 0;
+        virtual RetType visit(ReturnStmt&) = 0;
     };
 
     using StmtVisitor = StmtVisitor_T<void>;

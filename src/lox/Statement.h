@@ -139,4 +139,37 @@ namespace pimentel
 
         ACCEPT_IMPL(StmtVisitor);
     };
+
+    struct FunctionDeclStmt : public Statement
+    {
+        FunctionDeclStmt() = default;
+        FunctionDeclStmt(Token name, std::unique_ptr<BlockStmt> block, std::vector<Token>&& argList)
+            :
+            name(name),
+            block(std::move(block)),
+            argList(std::move(argList))
+        {}
+        ~FunctionDeclStmt() = default;
+
+        ACCEPT_IMPL(StmtVisitor);
+
+        Token name;
+        std::unique_ptr<BlockStmt> block;
+        std::vector<Token> argList;
+
+    };
+
+    struct ReturnStmt : public Statement
+    {
+        ReturnStmt() = default;
+        ReturnStmt(ExprPtr expr)
+            :
+            expr(std::move(expr))
+        {}
+        ~ReturnStmt() = default;
+
+        ACCEPT_IMPL(StmtVisitor);
+
+        ExprPtr expr;
+    };
 }

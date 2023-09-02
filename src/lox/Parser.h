@@ -16,24 +16,26 @@ namespace pimentel
         Parser(const std::vector<Token>& tokens);
         ~Parser() = default;
 
-        std::vector<std::unique_ptr<Statement>> parse();
+        std::vector<StmtPtr> parse();
 
     private:
 
-        std::unique_ptr<Statement> doDeclaration(ScopeType scopeType);
+        StmtPtr doDeclaration(ScopeType scopeType);
 
-        std::unique_ptr<Statement> doVarDecl();
-        std::unique_ptr<Statement> doPrintStmt();
-        std::unique_ptr<Statement> doExprStmt();
+        StmtPtr doVarDecl();
+        StmtPtr doPrintStmt();
+        StmtPtr doExprStmt();
 
-        std::unique_ptr<Statement> doStmt(ScopeType scopeType);
-        std::unique_ptr<Statement> doBlockStmt(ScopeType scopeType);
-        std::unique_ptr<Statement> doIfStmt(ScopeType scopeType);
-        std::unique_ptr<Statement> doWhileStmt(ScopeType scopeType);
-        std::unique_ptr<Statement> doForStmt(ScopeType scopeType);
-        std::unique_ptr<Statement> doBreakStmt(ScopeType scopeType);
+        StmtPtr doStmt(ScopeType scopeType);
+        StmtPtr doFunctionDecl(ScopeType scopeType);
+        std::unique_ptr<BlockStmt> doBlockStmt(ScopeType scopeType);
+        StmtPtr doIfStmt(ScopeType scopeType);
+        StmtPtr doWhileStmt(ScopeType scopeType);
+        StmtPtr doForStmt(ScopeType scopeType);
+        StmtPtr doBreakStmt(ScopeType scopeType);
+        StmtPtr doReturnStmt(ScopeType scopeType);
 
-        std::vector<std::unique_ptr<Statement>> doScopeStmts(ScopeType scopeType);
+        std::vector<StmtPtr> doScopeStmts(ScopeType scopeType);
 
         ExprPtr doExpression();
         ExprPtr doCall();

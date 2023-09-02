@@ -51,9 +51,11 @@ namespace pimentel
         RetType_stmt visit(WhileStmt&) override;
         RetType_stmt visit(BreakStmt&) override;
         RetType_stmt visit(ForStmt&) override;
+        RetType_stmt visit(FunctionDeclStmt&) override;
+        RetType_stmt visit(ReturnStmt&) override;
 
         RetType_expr evaluate(Expression&);
-
+    public:
         void executeBlock(const std::vector<std::unique_ptr<Statement>>& stmts, Environment& env);
 
     private:
