@@ -127,6 +127,11 @@ static const auto testParams = std::vector{
         std::string{"var t1 = clock(); var t2 = clock(); print(t2 >= t1);"},
         std::string{"true\n"}
     },
+    std::tuple{
+        std::string{"fun fac(n) { if(n > 1) { return (fac(n-1)*n); } return 1; }"
+        "print(fac(10));"},
+        std::string{"3628800.000000\n"}
+    },
 };
 
 INSTANTIATE_TEST_SUITE_P(BasicNumberTest, BasicIntegrationFixture,
