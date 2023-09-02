@@ -153,4 +153,23 @@ namespace pimentel
         Token paren;
         std::vector<ExprPtr> arguments;
     };
+
+    struct Indexing : public Expression
+    {
+        Indexing() = default;
+        Indexing(ExprPtr indexee, Token brackets, ExprPtr index)
+            :
+            indexee(std::move(indexee)),
+            brackets(brackets),
+            index(std::move(index))
+        {}
+        ~Indexing() = default;
+
+        ACCEPT_IMPL(ExprVisitorString);
+        ACCEPT_IMPL(ExprVisitorLoxVal);
+
+        ExprPtr indexee;
+        Token brackets;
+        ExprPtr index;
+    };
 }

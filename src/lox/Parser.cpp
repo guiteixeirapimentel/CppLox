@@ -290,6 +290,21 @@ ExprPtr Parser::doCall()
     return expr;
 }
 
+ExprPtr pimentel::Parser::doIndexing()
+{
+    ExprPtr expr = doCall();
+
+    if(match(TokenType::LEFT_SQR_BRACKET))
+    {
+        auto index = doExpression();
+
+        consume(TokenType::RIGHT_SQR_BRACKET, "Expected ']' after indexing.");
+        return std::make_unique<Indexing>(std::move(expr), previous(), std::move(index));
+    }
+
+    return expr;
+}
+
 ExprPtr pimentel::Parser::doArgumentListAndFinishCall(ExprPtr&& callExpr)
 {
     std::vector<ExprPtr> argList;
@@ -402,7 +417,7 @@ ExprPtr Parser::doUnary()
         return std::make_unique<Unary>(op, std::move(right));
     }
 
-    return doCall();
+    return doIndexing();
 }
 
 ExprPtr Parser::doPrimary()

@@ -17,6 +17,7 @@ namespace pimentel
     class Assignment;
     class Logical;
     class Call;
+    class Indexing;
 }
 
 namespace pimentel
@@ -37,6 +38,7 @@ namespace pimentel
         virtual RetType visit(Assignment&) = 0;
         virtual RetType visit(Logical&) = 0;
         virtual RetType visit(Call&) = 0;
+        virtual RetType visit(Indexing&) = 0;
     };
 
     using ExprVisitorString = ExpressionVisitor<std::string>;

@@ -20,6 +20,10 @@ namespace
             return {"LEFT_BRACE"};
         case TokenType::RIGHT_BRACE:
             return {"RIGHT_BRACE"};
+        case TokenType::LEFT_SQR_BRACKET:
+            return {"LEFT_SQR_BRACKET"};
+        case TokenType::RIGHT_SQR_BRACKET:
+            return {"RIGHT_SQR_BRACKET"};
         case TokenType::COMMA:
             return {"COMMA"};
         case TokenType::DOT:

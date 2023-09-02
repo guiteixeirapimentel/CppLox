@@ -74,7 +74,7 @@ Interpreter::RetType_expr Interpreter::visit(Binary& expr)
             const auto handleString = [&rightVal, &expr](const std::string& leftStr)
                 {
                     using T = std::remove_cvref_t<decltype(leftStr)>;
-                    const auto rightStr = *std::get_if<T>(&rightVal);
+                    const auto& rightStr = std::get<T>(rightVal);
 
                     switch (expr.operatorType.getType())
                     {
@@ -96,7 +96,7 @@ Interpreter::RetType_expr Interpreter::visit(Binary& expr)
             const auto handleBoolean = [&rightVal, &expr](const bool& leftV)
                 {
                     using T = std::remove_cvref_t<decltype(leftV)>;
-                    const auto rightV = *std::get_if<T>(&rightVal);
+                    const auto rightV = std::get<T>(rightVal);
 
                     switch (expr.operatorType.getType())
                     {
@@ -116,7 +116,7 @@ Interpreter::RetType_expr Interpreter::visit(Binary& expr)
             const auto handleNumeric = [&rightVal, &expr](const double& leftV)
                 {
                     using T = std::remove_cvref_t<decltype(leftV)>;
-                    const auto rightV = *std::get_if<T>(&rightVal);
+                    const auto rightV = std::get<T>(rightVal);
 
                     switch (expr.operatorType.getType())
                     {
@@ -268,6 +268,38 @@ Interpreter::RetType_expr Interpreter::visit(Call& callExpr)
     }
 
     return callable.call(*this, args, *m_currEnv);
+}
+
+Interpreter::RetType_expr Interpreter::visit(Indexing& indexing)
+{
+    auto indexee = evaluate(*indexing.indexee);
+
+    if(!std::holds_alternative<std::string>(indexee))
+    {
+        ErrorManager::get().report({}, "Trying to index non indexable obj (non string)!");
+        return {};
+    }
+
+    auto indexVal = evaluate(*indexing.index);
+
+    if(!std::holds_alternative<double>(indexVal))
+    {
+        ErrorManager::get().report({}, "Trying to index with non index value (non double)!");
+        return {};
+    }
+
+    auto i = std::get<double>(indexVal);
+    std::string& str = std::get<std::string>(indexee);
+
+    if(i > str.size())
+    {
+        std::string err = "Trying to access out of bounds!";
+        err += "i " + std::to_string(i) + " max val " + std::to_string(str.size());
+        ErrorManager::get().report({}, err);
+        return {};
+    }
+
+    return std::string{str[i]};
 }
 
 Interpreter::RetType_stmt Interpreter::visit(ExpressionStmt& exprStmt)

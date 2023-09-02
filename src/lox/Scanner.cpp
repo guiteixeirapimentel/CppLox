@@ -89,6 +89,8 @@ void Scanner::scanToken(std::vector<Token>& out)
         case ')': addToken(TokenType::RIGHT_PAREN); break;
         case '{': addToken(TokenType::LEFT_BRACE); break;
         case '}': addToken(TokenType::RIGHT_BRACE); break;
+        case '[': addToken(TokenType::LEFT_SQR_BRACKET); break;
+        case ']': addToken(TokenType::RIGHT_SQR_BRACKET); break;
         case ',': addToken(TokenType::COMMA); break;
         case '.': addToken(TokenType::DOT); break;
         case '-': addToken(TokenType::MINUS); break;

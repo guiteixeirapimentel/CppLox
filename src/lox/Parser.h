@@ -39,6 +39,7 @@ namespace pimentel
 
         ExprPtr doExpression();
         ExprPtr doCall();
+        ExprPtr doIndexing();
         ExprPtr doArgumentListAndFinishCall(ExprPtr&& callExpr);
         ExprPtr doAssignment();
         ExprPtr doEquality();
