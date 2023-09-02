@@ -331,7 +331,7 @@ Interpreter::RetType_stmt Interpreter::visit(IfStmt& ifStmt)
 
 Interpreter::RetType_stmt Interpreter::visit(WhileStmt& whileStmt)
 {
-    while (isTruthy(evaluate(*whileStmt.expr)) && !m_foundBreakStmt)
+    while (isTruthy(evaluate(*whileStmt.expr)) && !m_foundBreakStmt && !m_currEnv->returnFlagSet())
     {
         whileStmt.block->accept(*this);
     }
@@ -357,7 +357,7 @@ Interpreter::RetType_stmt pimentel::Interpreter::visit(ForStmt& forStmt)
     }
 
     const auto hasExpr = forStmt.expr != nullptr;
-    while ((!hasExpr || isTruthy(evaluate(*forStmt.expr))) && !m_foundBreakStmt)
+    while ((!hasExpr || isTruthy(evaluate(*forStmt.expr))) && !m_foundBreakStmt && !m_currEnv->returnFlagSet())
     {
         forStmt.block->accept(*this);
         if (forStmt.incStmt)
