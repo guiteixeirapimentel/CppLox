@@ -1,0 +1,19 @@
+// var a = "abc";
+// var b = "ade";
+
+// if(a == b)
+// {
+//     print("a==b");
+// }
+// else
+// {
+//     print("a!=b");
+// }
+
+
+var abc = 1;
+{
+    var abc = abc + 1;
+
+    print(abc);
+}

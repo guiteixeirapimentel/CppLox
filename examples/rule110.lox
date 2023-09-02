@@ -1,0 +1,95 @@
+var BOARD_SIZE = 100;
+
+var curBoard = "";
+
+for(var i = 0 ; i < BOARD_SIZE - 1; i = i + 1)
+{
+    curBoard = curBoard + " ";
+}
+curBoard = curBoard + "x";
+
+var newBoard = curBoard;
+
+var MAX_GENS = 100;
+
+fun getVal(x1, x2, x3)
+{
+    // 7
+    if(x1 == "x" and x2 == "x" and x3 == "x")
+    {
+        return " ";
+    }
+
+    // 6
+    if(x1 == "x" and x2 == "x" and x3 == " ")
+    {
+        return "x";
+    }
+
+    // 5
+    if(x1 == "x" and x2 == " " and x3 == "x")
+    {
+        return "x";
+    }
+
+    // 4
+    if(x1 == "x" and x2 == " " and x3 == " ")
+    {
+        return " ";
+    }
+
+    // 3
+    if(x1 == " " and x2 == "x" and x3 == "x")
+    {
+        return "x";
+    }
+
+    // 2
+    if(x1 == " " and x2 == "x" and x3 == " ")
+    {
+        return "x";
+    }
+
+    // 1
+    if(x1 == " " and x2 == " " and x3 == "x")
+    {
+        return "x";
+    }
+
+    // 0
+    if(x1 == " " and x2 == " " and x3 == " ")
+    {
+        return " ";
+    }
+}
+
+fun advanceGeneration()
+{
+    newBoard = " ";
+    for(var i = 1; i < BOARD_SIZE - 1; i = i + 1)
+    {
+        newBoard = newBoard + getVal(curBoard[i - 1], curBoard[i], curBoard[i + 1]);
+    }
+
+    newBoard = newBoard + "x";
+
+    curBoard = newBoard;
+}
+
+fun printCurrentGen()
+{
+    print(curBoard);
+}
+
+var t1 = clock();
+
+for(var i = 0; i < MAX_GENS; i = i + 1)
+{
+    advanceGeneration();
+    printCurrentGen();
+}
+
+var t2 = clock();
+
+print("110 rule took the following seconds");
+print(t2 - t1);

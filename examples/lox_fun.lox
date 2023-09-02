@@ -1,0 +1,11 @@
+fun abc(a, b)
+{
+    for(var i =0; i < b; i = i+1)
+    {
+        print(a);
+    }
+
+    return 10;
+}
+
+abc("hello", 2);
