@@ -132,6 +132,28 @@ static const auto testParams = std::vector{
         "print(fac(10));"},
         std::string{"3628800.000000\n"}
     },
+    std::tuple{
+        std::string{"var i = 0; fun globVar() { print(i); }"
+        "print(i); i = i + 1; print(i);"},
+        std::string{"0.000000\n1.000000\n"}
+    },
+
+    std::tuple{
+        std::string{R"STR(fun makeCounter() {
+                    var i = 0;
+                    fun count() {
+                        i = i + 1;
+                        print i;
+                    }
+
+                    return count;
+                    }
+
+                    var counter = makeCounter();
+                    counter(); // "1".
+                    counter(); // "2".)STR"},
+        std::string{"0.000000\n1.000000\n"},
+    },
 };
 
 INSTANTIATE_TEST_SUITE_P(BasicNumberTest, BasicIntegrationFixture,

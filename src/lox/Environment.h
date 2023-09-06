@@ -16,6 +16,9 @@ namespace pimentel
         Environment(Environment* enclosing);
         ~Environment() = default;
 
+        Environment& operator=(const Environment&) = delete;
+        Environment& operator=(Environment&&) = delete;
+
         void define(const std::string& name, LoxVal value);
         void assign(const std::string& name, LoxVal value);
         LoxVal get(const std::string& name) const;

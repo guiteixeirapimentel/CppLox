@@ -267,7 +267,7 @@ Interpreter::RetType_expr Interpreter::visit(Call& callExpr)
         return {};
     }
 
-    return callable.call(*this, args, *m_currEnv);
+    return callable.call(*this, args, m_env);
 }
 
 Interpreter::RetType_expr Interpreter::visit(Indexing& indexing)
