@@ -57,11 +57,11 @@ namespace pimentel
 
         RetType_expr evaluate(Expression&);
     public:
-        void executeBlock(const std::vector<std::unique_ptr<Statement>>& stmts, Environment& env);
+        void executeBlock(const std::vector<std::unique_ptr<Statement>>& stmts, const std::shared_ptr<Environment>& env);
 
     private:
-        Environment m_env;
-        Environment* m_currEnv;
+        std::shared_ptr<Environment> m_env;
+        std::shared_ptr<Environment> m_currEnv;
 
         std::ostream& m_printStream;
 

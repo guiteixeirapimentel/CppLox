@@ -4,6 +4,7 @@
 #include "CustomTraits.h"
 #include "LiteralUtils.h"
 #include "ErrorManager.h"
+#include "UserFunction.h"
 #include <cassert>
 #include <iostream>
 
@@ -13,9 +14,9 @@ using namespace pimentel;
 
 namespace
 {
-    void defineBuiltinFunctions(Environment& globalEnv)
+    void defineBuiltinFunctions(const std::shared_ptr<Environment>& globalEnv)
     {
-        globalEnv.define("clock", std::shared_ptr<LoxCallableStub>(new ClockFnc{}));
+        globalEnv->define("clock", std::shared_ptr<LoxCallableStub>(new ClockFnc{}));
     }
 
     bool isTruthy(const Interpreter::RetType_expr& literal)
@@ -267,7 +268,7 @@ Interpreter::RetType_expr Interpreter::visit(Call& callExpr)
         return {};
     }
 
-    return callable.call(*this, args, m_env);
+    return callable.call(*this, args);
 }
 
 Interpreter::RetType_expr Interpreter::visit(Indexing& indexing)
@@ -343,7 +344,7 @@ Interpreter::RetType_stmt Interpreter::visit(ReturnStmt& retStmt)
 
 Interpreter::RetType_stmt Interpreter::visit(BlockStmt& blockStmt)
 {
-    auto env = Environment{ m_currEnv };
+    auto env = std::make_shared<Environment>(m_currEnv);
     executeBlock(blockStmt.stmts, env);
 }
 
@@ -378,10 +379,10 @@ Interpreter::RetType_stmt Interpreter::visit(BreakStmt&)
 
 Interpreter::RetType_stmt pimentel::Interpreter::visit(ForStmt& forStmt)
 {
-    auto env = Environment{ m_currEnv };
-    Environment* previous = m_currEnv;
+    auto env = std::make_shared<Environment>(m_currEnv);
+    auto previous = m_currEnv;
 
-    m_currEnv = &env;
+    m_currEnv = env;
 
     if (forStmt.variableDef)
     {
@@ -403,46 +404,6 @@ Interpreter::RetType_stmt pimentel::Interpreter::visit(ForStmt& forStmt)
     m_currEnv = previous;
 }
 
-struct UserFunction : public LoxCallable
-{
-public:
-    UserFunction(std::unique_ptr<BlockStmt>&& block, std::vector<std::string>&& argNames)
-        :
-        m_block(std::move(block)),
-        m_argNames(std::move(argNames))
-    {}
-
-    LoxVal call(Interpreter& interpreter, const std::vector<LoxVal>& argList, Environment& curEnv) override
-    {
-        Environment fEnv{&curEnv};
-
-        for(size_t i = 0; i < argList.size(); i++)
-        {
-            fEnv.define(m_argNames[i], argList[i]);
-        }
-
-        interpreter.executeBlock(m_block->stmts, fEnv);
-
-        if(fEnv.returnFlagSet())
-        {
-            curEnv.setReturnFlag(false);
-            curEnv.setReturnVal({});
-            return fEnv.getReturnValue();
-        }
-
-        return {};
-    }
-
-    size_t arity() const override
-    {
-        return m_argNames.size();
-    }
-
-private:
-    std::unique_ptr<BlockStmt> m_block;
-    std::vector<std::string> m_argNames;
-};
-
 Interpreter::RetType_stmt Interpreter::visit(FunctionDeclStmt& funDecl)
 {
     auto funcName = funDecl.name;
@@ -452,8 +413,8 @@ Interpreter::RetType_stmt Interpreter::visit(FunctionDeclStmt& funDecl)
         std::back_inserter(argList),
         [](const auto& arg) { return arg.getLexeme(); });
 
-    auto uFun = new UserFunction{ std::move(funDecl.block), std::move(argList) };
-    m_env.define(funcName.getLexeme(), std::unique_ptr<LoxCallableStub>(uFun));
+    auto uFun = new UserFunction{ std::move(funDecl.block), std::move(argList), m_currEnv};
+    m_env->define(funcName.getLexeme(), std::unique_ptr<LoxCallableStub>(uFun));
 }
 
 Interpreter::RetType_expr Interpreter::evaluate(Expression& expr)
@@ -461,11 +422,11 @@ Interpreter::RetType_expr Interpreter::evaluate(Expression& expr)
     return expr.accept(*this);
 }
 
-void pimentel::Interpreter::executeBlock(const std::vector<StmtPtr>& stmts, Environment& env)
+void pimentel::Interpreter::executeBlock(const std::vector<StmtPtr>& stmts, const std::shared_ptr<Environment>& env)
 {
-    Environment* previous = m_currEnv;
+    auto previous = m_currEnv;
 
-    m_currEnv = &env;
+    m_currEnv = env;
 
     for (const auto& stmt : stmts)
     {
@@ -492,8 +453,8 @@ void Interpreter::execute(Statement& stmt)
 
 Interpreter::Interpreter(std::ostream& printStream)
     :
-    m_env(),
-    m_currEnv(&m_env),
+    m_env(std::make_shared<Environment>()),
+    m_currEnv(m_env),
     m_printStream(printStream),
     m_foundBreakStmt(false)
 {

@@ -20,6 +20,8 @@ set(LOX_SOURCE
     Environment.cpp
     Environment.h
     LoxVal.h
+    UserFunction.h
+    UserFunction.cpp
 )
 
 add_library(lox_lib ${LOX_SOURCE})

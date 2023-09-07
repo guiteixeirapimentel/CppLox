@@ -11,7 +11,7 @@ namespace pimentel
         ClockFnc(){  }
         ~ClockFnc() = default;
 
-        LoxVal call(Interpreter&, const std::vector<LoxVal>&, Environment&) override
+        LoxVal call(Interpreter&, const std::vector<LoxVal>&) override
         {
             const auto now = std::chrono::system_clock::now();
             const auto duration = now.time_since_epoch();

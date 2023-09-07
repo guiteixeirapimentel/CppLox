@@ -13,7 +13,7 @@ namespace pimentel
         Environment();
         Environment(const Environment&) = delete;
         Environment(Environment&&) = delete;
-        Environment(Environment* enclosing);
+        Environment(const std::shared_ptr<Environment>& enclosing);
         ~Environment() = default;
 
         Environment& operator=(const Environment&) = delete;
@@ -44,7 +44,7 @@ namespace pimentel
         }
 
     private:
-        Environment* m_enclosing;
+        std::shared_ptr<Environment> m_enclosing;
         std::unordered_map<std::string, LoxVal> m_vars;
 
         bool m_returnFlag = false;
